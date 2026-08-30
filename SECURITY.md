@@ -1,19 +1,20 @@
-# Security Policy
+# Security policy
 
-## Supported Versions
+## Supported code
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
+Security fixes target the current `main` branch. This repository has not declared a supported release line.
 
-## Reporting a Vulnerability
+## Report privately
 
-We take the security of Nymrel Machine Trust, Universal Commerce Protocol (UCP), and client audit tooling seriously.
+Do not open a public issue for a suspected vulnerability. Send a concise report to `contact@nymrel.com` with:
 
-If you believe you have discovered a security vulnerability in `@nymrel/trust-scorecard` or any related `@nymrel/*` packages:
+- affected commit or deployed URL;
+- reproduction steps and impact;
+- relevant logs or a minimal proof of concept;
+- any suggested disclosure constraints.
 
-1. **Do NOT open a public GitHub issue.**
-2. Send an email directly to **security@jalenbuilds.com** and **contact@nymrel.com**.
-3. Include detailed steps to reproduce, affected versions, and proof of concept where applicable.
+Do not include credentials, customer data, or unrelated personal information. Nymrel will confirm receipt and coordinate next steps when the report can be reproduced; no response-time guarantee is made in this repository.
 
-We acknowledge security reports within 24 hours and prioritize high-severity remediations immediately.
+## Security model
+
+The application is designed to evaluate bounded, user-supplied evidence in the browser without fetching the labeled domain. A score is not a security assessment or certification. Deployment-specific controls, headers, dependencies, and origin behavior require separate verification.

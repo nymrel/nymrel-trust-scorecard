@@ -9,20 +9,20 @@ export const colors = {
   linenDark: '#EAE4D6',
   surface: '#FFFFFF',
   surfaceWarm: '#FCFAF5',
-  
+
   cedar: '#2A332E',
   cedarLight: '#3D4942',
   cedarDark: '#1B221E',
-  
+
   terracotta: '#A8541F',
   terracottaHover: '#BD6127',
   terracottaLight: '#FDF1E8',
   terracottaDark: '#8A4116',
-  
+
   stoneBorder: '#E2DDD2',
   stoneBorderDark: '#CBC5B7',
   stoneLight: '#F0EBE0',
-  
+
   textPrimary: '#1C2421',
   textSecondary: '#5B6760',
   textMuted: '#84918A',
@@ -32,15 +32,15 @@ export const colors = {
     pass: '#237346',
     passBg: '#EDF7F1',
     passBorder: '#BDE0CD',
-    
+
     warn: '#B46416',
     warnBg: '#FEF6ED',
     warnBorder: '#FAD8B5',
-    
+
     fail: '#C53030',
     failBg: '#FDF0F0',
     failBorder: '#F9C8C8',
-    
+
     info: '#2563EB',
     infoBg: '#EFF6FF',
     infoBorder: '#BFDBFE',
@@ -52,7 +52,7 @@ export const colors = {
     C: { bg: '#FEF6ED', text: '#9A4C10', border: '#FAD8B5', label: 'Partial AI Readiness' },
     D: { bg: '#FFF7ED', text: '#C2410C', border: '#FFEDD5', label: 'Legacy Web Structure' },
     F: { bg: '#FDF0F0', text: '#9B1C1C', border: '#F9C8C8', label: 'Agent Hostile / Opaque' },
-  }
+  },
 };
 
 export const dimensions = {
@@ -76,7 +76,8 @@ export const dimensions = {
     key: 'intentAndOffers',
     name: 'UCP Commerce & Offers',
     shortName: 'Offers & Catalog',
-    description: 'Structured Schema.org Product, Offer pricing in ISO 4217, availability & policies',
+    description:
+      'Structured Schema.org Product, Offer pricing in ISO 4217, availability & policies',
     weight: 20,
     color: '#D97706',
   },

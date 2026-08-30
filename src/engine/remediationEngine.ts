@@ -1,9 +1,9 @@
-import { CheckItem } from '../types';
+import type { CheckItem } from '../types';
 
 export interface RemediationPackage {
   title: string;
   description: string;
-  installCommand: string;
+  reviewCommand: string;
   files: Array<{
     filename: string;
     language: string;
@@ -12,151 +12,109 @@ export interface RemediationPackage {
   }>;
 }
 
-export function generateRemediationBundle(domain: string, checks: CheckItem[]): RemediationPackage[] {
+export function generateRemediationBundle(
+  domain: string,
+  checks: CheckItem[],
+): RemediationPackage[] {
+  const failingChecks = checks.filter(
+    (check) => check.status === 'FAIL' || check.status === 'WARN',
+  );
+  const hasEntityIssue = failingChecks.some((check) => check.dimension === 'entityGraph');
+  const hasDiscoveryIssue = failingChecks.some((check) => check.dimension === 'discovery');
+  const hasPaymentsIssue = failingChecks.some((check) => check.dimension === 'machinePayments');
+  const hasCrawlerIssue = failingChecks.some((check) => check.dimension === 'aiCrawlerAccess');
   const bundles: RemediationPackage[] = [];
-  const failingChecks = checks.filter((c) => c.status === 'FAIL' || c.status === 'WARN');
 
-  const hasEntityIssue = failingChecks.some((c) => c.dimension === 'entityGraph');
-  const hasDiscoveryIssue = failingChecks.some((c) => c.dimension === 'discovery');
-  const hasPaymentsIssue = failingChecks.some((c) => c.dimension === 'machinePayments');
-  const hasCrawlerIssue = failingChecks.some((c) => c.dimension === 'aiCrawlerAccess');
-
-  // 1. Machine Trust & Schema.org Provenance Bundle
   if (hasEntityIssue || hasDiscoveryIssue) {
     bundles.push({
-      title: 'Machine Trust & Dual-Audience Entity Graph',
-      description: 'Deploy verifiable parentOrganization provenance, ISO 4217 product offers, and /llms.txt orientation using @nymrel/machine-trust.',
-      installCommand: 'npm install @nymrel/machine-trust',
+      title: 'Entity and orientation evidence template',
+      description:
+        'Review these operator-fill templates with the legal, product, and content owners. Their presence does not verify the facts they contain or guarantee discovery.',
+      reviewCommand: 'Review every OPERATOR-FILL field before publishing',
       files: [
         {
-          filename: 'src/config/machine-trust.ts',
-          language: 'typescript',
-          explanation: 'Configures dual-audience JSON-LD entity graph with parent entity verification and /llms.txt',
-          code: `import { createMachineTrustEngine } from '@nymrel/machine-trust';
-
-export const machineTrust = createMachineTrustEngine({
-  entity: {
-    name: '${domain}',
-    legalName: '${domain} Operating Co., LLC',
-    url: 'https://${domain}',
-    description: 'Autonomous commerce and enterprise software platform.',
-    contactPoint: {
-      email: 'contact@${domain}',
-      contactType: 'customer service'
-    },
-    parentOrganization: {
-      name: 'Nymrel',
-      legalName: 'JalenBuilds LLC',
-      url: 'https://jalenbuilds.com'
-    }
-  },
-  llmsTxt: {
-    title: '${domain} AI Agent Orientation',
-    summary: '${domain} exposes machine-executable APIs and verifiable machine trust for autonomous agents.',
-    sections: [
-      {
-        title: 'Core Capabilities',
-        links: [
-          { title: 'Product Catalog', url: 'https://${domain}/catalog', description: 'Real-time inventory and pricing' },
-          { title: 'Machine Checkout', url: 'https://${domain}/.well-known/ucp', description: 'Universal Commerce Protocol endpoints' }
-        ]
-      }
-    ]
+          filename: 'public/organization.schema.json',
+          language: 'json',
+          explanation:
+            'A minimal Organization draft. Publish only values supported by current first-party evidence.',
+          code: `{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "OPERATOR-FILL",
+  "url": "https://${domain}",
+  "description": "OPERATOR-FILL",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "email": "OPERATOR-FILL",
+    "contactType": "OPERATOR-FILL"
   }
-});`,
+}`,
         },
         {
           filename: 'public/llms.txt',
           language: 'markdown',
-          explanation: 'Standard /llms.txt file placed in your web root for AI agent orientation',
-          code: `# ${domain}
+          explanation:
+            'A small orientation draft. Keep only routes and capabilities that exist and are safe to disclose.',
+          code: `# OPERATOR-FILL
 
-> ${domain} provides machine-readable services, verified entity provenance, and autonomous checkout endpoints for AI purchasing agents.
+> OPERATOR-FILL: concise, evidence-backed description of this site.
 
-## Core Capabilities
-- Products & Catalog: https://${domain}/products
-- API Reference: https://${domain}/docs/api
-- Universal Commerce Protocol: https://${domain}/.well-known/ucp
-- Machine Trust Verification: https://score.nymrel.com/?url=${domain}
+## Verified resources
+- Homepage: https://${domain}/
+- OPERATOR-FILL: https://${domain}/OPERATOR-FILL
+
+## Boundaries
+- This file describes published resources; it does not certify live behavior or search inclusion.
 `,
         },
       ],
     });
   }
 
-  // 2. Open UCP & Machine Payments Bundle
   if (hasPaymentsIssue) {
     bundles.push({
-      title: 'Universal Commerce Protocol (UCP) & x402 Micropayments',
-      description: 'Enable autonomous agent purchasing, instant price quoting, and HTTP 402 / x402 settlement rails with @nymrel/open-ucp.',
-      installCommand: 'npm install @nymrel/open-ucp',
+      title: 'Machine-commerce capability draft',
+      description:
+        'Use this manifest only after the commerce, payment, security, privacy, and legal owners verify each advertised capability and endpoint.',
+      reviewCommand: 'Validate endpoints and payment claims before publishing',
       files: [
         {
-          filename: 'src/api/ucp.ts',
-          language: 'typescript',
-          explanation: 'Zero-dependency UCP handler for Next.js / Express / Fastify exposing /.well-known/ucp',
-          code: `import { createUcpHandler } from '@nymrel/open-ucp';
-
-export const ucpHandler = createUcpHandler({
-  merchant: {
-    name: '${domain}',
-    legalName: '${domain} Operating Co., LLC',
-    contactEmail: 'contact@${domain}'
-  },
-  agentEndpoints: {
-    catalog: '/api/ucp/catalog',
-    search: '/api/ucp/search',
-    quote: '/api/ucp/quote',
-    checkout: '/api/ucp/checkout'
-  },
-  paymentCapabilities: {
-    protocols: ['x402', 'ap2', 'stripe_agent_link'],
-    x402Enabled: true,
-    supportedTokens: ['USDC', 'USD']
-  }
-});`,
-        },
-        {
-          filename: 'public/.well-known/ucp.json',
+          filename: 'public/.well-known/ucp',
           language: 'json',
-          explanation: 'Static fallback UCP manifest for static sites and Jamstack architectures',
+          explanation:
+            'A protocol-neutral operator-fill draft. Replace or remove every placeholder, then validate against the exact protocol version you implement.',
           code: `{
-  "ucpVersion": "1.0",
+  "version": "OPERATOR-FILL",
   "merchant": {
-    "name": "${domain}",
-    "legalName": "${domain} Operating Co., LLC",
-    "parentEntity": "Nymrel -> JalenBuilds LLC",
-    "contactEmail": "contact@${domain}"
+    "name": "OPERATOR-FILL",
+    "legalName": "OPERATOR-FILL",
+    "contactEmail": "OPERATOR-FILL"
   },
-  "agentEndpoints": {
-    "catalog": "https://${domain}/api/catalog",
-    "quote": "https://${domain}/api/quote",
-    "checkout": "https://${domain}/api/checkout"
+  "capabilities": {
+    "catalog": "https://${domain}/OPERATOR-FILL",
+    "quote": "https://${domain}/OPERATOR-FILL",
+    "checkout": "https://${domain}/OPERATOR-FILL"
   },
-  "paymentCapabilities": {
-    "protocols": ["x402", "ap2", "stripe_agent_link"],
-    "x402Enabled": true,
-    "supportedTokens": ["USD", "USDC"]
-  }
+  "paymentMethods": ["OPERATOR-FILL"]
 }`,
         },
       ],
     });
   }
 
-  // 3. AI Search Bot & Crawler Access Bundle
   if (hasCrawlerIssue) {
     bundles.push({
-      title: 'AI Search Discoverability & Granular Crawler Posture',
-      description: 'Configure robots.txt to explicitly welcome AI search agents (OAI-SearchBot, PerplexityBot, ClaudeBot) while maintaining scraper governance.',
-      installCommand: '# No dependencies required (Static file)',
+      title: 'Crawler policy review draft',
+      description:
+        'Choose an explicit access policy with the content and security owners. A permissive robots.txt rule grants crawl permission; it does not guarantee crawling, indexing, citation, or ranking.',
+      reviewCommand: 'Review crawl policy and sitemap URL before publishing',
       files: [
         {
           filename: 'public/robots.txt',
           language: 'markdown',
-          explanation: 'High-discoverability robots.txt for AI agent search inclusion',
-          code: `# Allow AI Search Bots to index catalogs & documentation
-User-agent: OAI-SearchBot
+          explanation:
+            'A permissive draft for public content. Add targeted exclusions for any routes that should not be crawled.',
+          code: `User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: PerplexityBot
@@ -165,10 +123,6 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
-User-agent: Applebot-Extended
-Allow: /
-
-# General crawlers
 User-agent: *
 Allow: /
 

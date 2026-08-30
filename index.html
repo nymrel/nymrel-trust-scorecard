@@ -1,45 +1,46 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Primary Meta Tags -->
-    <title>Nymrel Trust Scorecard — AI Agent Readiness & Machine Trust Gauge</title>
-    <meta name="title" content="Nymrel Trust Scorecard — AI Agent Readiness & Machine Trust Gauge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; connect-src 'none'; font-src 'self'; form-action 'self'; img-src 'self' data:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#faf8f2" />
+    <meta name="robots" content="index, follow" />
+
+    <title>Nymrel Trust Scorecard — Local machine-readability diagnostic</title>
     <meta
       name="description"
-      content="Explore deterministic example fixtures or manually supplied evidence for AI readiness and machine trust. This browser demo does not fetch websites."
+      content="Inspect versioned synthetic fixtures or bounded evidence supplied in the browser. No website fetch, live verification, certification, or discoverability prediction."
     />
-    <meta name="theme-color" content="#FAF8F2" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://score.nymrel.com" />
+    <link rel="canonical" href="https://score.nymrel.com/" />
 
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://score.nymrel.com" />
-    <meta property="og:site_name" content="Nymrel Machine Trust" />
-    <meta property="og:title" content="Nymrel Trust Scorecard — AI Agent Readiness & Machine Trust Gauge" />
+    <meta property="og:url" content="https://score.nymrel.com/" />
+    <meta property="og:site_name" content="Nymrel Trust Scorecard" />
+    <meta
+      property="og:title"
+      content="Nymrel Trust Scorecard — Local machine-readability diagnostic"
+    />
     <meta
       property="og:description"
-      content="Explore deterministic example fixtures or manually supplied evidence for AI readiness and machine trust."
+      content="Inspect synthetic fixtures or bounded evidence supplied in the browser. No live website verification."
     />
-    <meta property="og:image" content="https://score.nymrel.com/og-card.png" />
 
-    <!-- Twitter / X -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:site" content="@nymrel" />
-    <meta property="twitter:creator" content="@jalenbuilds" />
-    <meta property="twitter:url" content="https://score.nymrel.com" />
-    <meta property="twitter:title" content="Nymrel Trust Scorecard — AI Agent Readiness & Machine Trust Gauge" />
+    <meta name="twitter:card" content="summary" />
     <meta
-      property="twitter:description"
-      content="Explore deterministic example fixtures or manually supplied evidence for AI readiness and machine trust."
+      name="twitter:title"
+      content="Nymrel Trust Scorecard — Local machine-readability diagnostic"
     />
-    <meta property="twitter:image" content="https://score.nymrel.com/og-card.png" />
+    <meta
+      name="twitter:description"
+      content="Inspect synthetic fixtures or bounded evidence supplied in the browser. No live website verification."
+    />
 
-    <!-- Schema.org Machine Trust Graph -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -48,39 +49,19 @@
             "@type": "Organization",
             "@id": "https://nymrel.com/#organization",
             "name": "Nymrel",
-            "legalName": "JalenBuilds LLC",
-            "url": "https://nymrel.com",
-            "logo": "https://nymrel.com/logo.png",
-            "description": "Operating umbrella for autonomous agentic commerce, machine trust infrastructure, and next-generation web protocols.",
-            "contactPoint": {
-              "@type": "ContactPoint",
-              "contactType": "customer service",
-              "email": "contact@jalenbuilds.com"
-            },
-            "parentOrganization": {
-              "@type": "Organization",
-              "@id": "https://jalenbuilds.com/#organization",
-              "name": "JalenBuilds LLC",
-              "legalName": "JalenBuilds LLC",
-              "url": "https://jalenbuilds.com"
-            }
+            "url": "https://nymrel.com/",
+            "email": "contact@nymrel.com"
           },
           {
             "@type": "WebApplication",
-            "@id": "https://score.nymrel.com/#app",
+            "@id": "https://score.nymrel.com/#application",
             "name": "Nymrel Trust Scorecard",
-            "url": "https://score.nymrel.com",
+            "url": "https://score.nymrel.com/",
             "applicationCategory": "DeveloperApplication",
-            "operatingSystem": "All",
-            "description": "Deterministic 0-100 scoring gauge for website AI agent readiness, machine trust graph provenance, UCP endpoints, and crawler discoverability.",
+            "operatingSystem": "Any modern web browser",
+            "description": "A local-first diagnostic that scores versioned synthetic fixtures or bounded machine-readability evidence supplied by the user. It does not fetch or verify live websites.",
             "publisher": {
               "@id": "https://nymrel.com/#organization"
-            },
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD",
-              "availability": "https://schema.org/InStock"
             }
           }
         ]
@@ -88,6 +69,7 @@
     </script>
   </head>
   <body>
+    <noscript>This local diagnostic requires JavaScript to evaluate supplied evidence.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -1,159 +1,131 @@
-import { CheckItem } from '../../types';
+import type { CheckItem } from '../../types';
+import {
+  getString,
+  hasProperty,
+  isJsonObject,
+  nodeHasType,
+  parseJsonLdDocuments,
+  type JsonObject,
+} from '../jsonData';
 
 export interface IntentOffersInput {
   jsonLdStrings: string[];
-  rawHtml?: string;
+  rawHtml?: string | undefined;
   domain: string;
 }
 
+function collectOffers(node: JsonObject): JsonObject[] {
+  const { offers: rawOffers } = node;
+  if (Array.isArray(rawOffers)) return rawOffers.filter(isJsonObject);
+  return isJsonObject(rawOffers) ? [rawOffers] : [];
+}
+
 export function evaluateIntentOffers(input: IntentOffersInput): CheckItem[] {
+  const { domain, jsonLdStrings } = input;
+  const { nodes } = parseJsonLdDocuments(jsonLdStrings);
+  const products = nodes.filter((node) =>
+    nodeHasType(node, ['product', 'service', 'softwareapplication', 'webapplication']),
+  );
+  const webApplications = nodes.filter((node) => nodeHasType(node, ['website', 'webapplication']));
+  const offers = [
+    ...nodes.filter((node) => nodeHasType(node, ['offer'])),
+    ...nodes.flatMap(collectOffers),
+  ];
   const checks: CheckItem[] = [];
-  const { jsonLdStrings, domain } = input;
 
-  const validNodes: any[] = [];
-  for (const raw of jsonLdStrings) {
-    try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        for (const item of parsed) {
-          if (item && typeof item === 'object') {
-            if (Array.isArray(item['@graph'])) validNodes.push(...item['@graph']);
-            else validNodes.push(item);
-          }
-        }
-      } else if (parsed && typeof parsed === 'object') {
-        if (Array.isArray(parsed['@graph'])) validNodes.push(...parsed['@graph']);
-        else validNodes.push(parsed);
-      }
-    } catch {
-      // Ignored here (handled in entityGraph)
-    }
-  }
-
-  const products: any[] = [];
-  const offers: any[] = [];
-  const webApps: any[] = [];
-
-  for (const node of validNodes) {
-    const t = String(node['@type'] || '').toLowerCase();
-    if (t.includes('product') || t.includes('service') || t.includes('softwareapplication') || t.includes('webapplication')) {
-      products.push(node);
-    }
-    if (t.includes('offer')) {
-      offers.push(node);
-    }
-    if (t.includes('website') || t.includes('webapplication')) {
-      webApps.push(node);
-    }
-
-    if (node.offers) {
-      if (Array.isArray(node.offers)) {
-        offers.push(...node.offers);
-      } else if (typeof node.offers === 'object') {
-        offers.push(node.offers);
-      }
-    }
-  }
-
-  // 1. Schema.org Product & Service Declarations (7 pts)
   const hasProducts = products.length > 0;
   checks.push({
     id: 'off-001',
-    name: 'Structured Product & Service Declarations',
+    name: 'Structured product or service declarations',
     dimension: 'intentAndOffers',
     status: hasProducts ? 'PASS' : 'WARN',
     score: hasProducts ? 7 : 0,
     maxScore: 7,
     message: hasProducts
-      ? `Found ${products.length} machine-readable Product/SoftwareApplication node(s).`
-      : 'No Schema.org Product, SoftwareApplication, or Service entity found.',
+      ? `Supplied evidence contains ${products.length} Product, Service, or application node(s).`
+      : 'No Product, Service, SoftwareApplication, or WebApplication node was supplied.',
     details: { productsCount: products.length },
-    remediation: !hasProducts
-      ? 'Add Schema.org `Product` or `SoftwareApplication` definitions for AI purchasing agents.'
-      : undefined,
+    remediation: hasProducts
+      ? undefined
+      : 'Add a truthful Product, Service, or application declaration for each real offer.',
   });
 
-  // 2. Offer Transparency, ISO 4217 Currencies & Availability (8 pts)
-  let offerScore = 0;
   const hasOffers = offers.length > 0;
-  let hasPrice = false;
-  let hasCurrency = false;
-  let hasAvailability = false;
-
-  if (hasOffers) {
-    offerScore += 3;
-    hasPrice = offers.some((o) => o.price !== undefined);
-    hasCurrency = offers.some((o) => !!o.priceCurrency);
-    hasAvailability = offers.some((o) => !!o.availability);
-
-    if (hasPrice) offerScore += 2;
-    if (hasCurrency) offerScore += 1.5;
-    if (hasAvailability) offerScore += 1.5;
-  }
+  const hasPrice = offers.some((offer) => hasProperty(offer, 'price'));
+  const hasCurrency = offers.some((offer) => Boolean(getString(offer, 'priceCurrency')));
+  const hasAvailability = offers.some((offer) => Boolean(getString(offer, 'availability')));
+  let offerScore = hasOffers ? 3 : 0;
+  if (hasPrice) offerScore += 2;
+  if (hasCurrency) offerScore += 1.5;
+  if (hasAvailability) offerScore += 1.5;
 
   checks.push({
     id: 'off-002',
-    name: 'Offer Transparency & ISO 4217 Pricing',
+    name: 'Offer price, currency, and availability fields',
     dimension: 'intentAndOffers',
     status: offerScore >= 7 ? 'PASS' : offerScore > 0 ? 'WARN' : 'FAIL',
     score: offerScore,
     maxScore: 8,
     message:
       offerScore >= 7
-        ? `Machine-executable offers (${offers.length} total) with explicit pricing, currency (ISO 4217), and availability state.`
+        ? `Supplied evidence contains ${offers.length} offer(s) with price, currency, and availability fields.`
         : hasOffers
-        ? `Partial offer schema (${offers.length} offer(s)). Missing strict ISO 4217 currency or availability URL.`
-        : 'No Schema.org Offer nodes found. Autonomous agents cannot verify pricing or availability.',
-    details: { offersCount: offers.length, hasPrice, hasCurrency, hasAvailability },
+          ? `Supplied evidence contains ${offers.length} offer(s), but one or more modeled fields are missing.`
+          : 'No Schema.org Offer object was supplied.',
+    details: { hasAvailability, hasCurrency, hasPrice, offersCount: offers.length },
     remediation:
       offerScore < 7
-        ? 'Include `price`, `priceCurrency: "USD"`, and `availability: "https://schema.org/InStock"` in your Offer schemas.'
+        ? 'Add verified price, ISO 4217 priceCurrency, and availability values. Keep unapproved prices operator-filled.'
         : undefined,
-    codeSnippet: offerScore < 7 ? {
-      language: 'json',
-      filename: 'schema-offer.json',
-      description: 'Schema.org Product & Offer with ISO currency',
-      code: `{
+    codeSnippet:
+      offerScore < 7
+        ? {
+            language: 'json',
+            filename: 'offer.schema.json',
+            description: 'Offer template with operator-controlled commercial values',
+            code: `{
   "@context": "https://schema.org",
-  "@type": "Product",
-  "name": "Standard Access",
+  "@type": "Service",
+  "name": "OPERATOR-FILL",
   "offers": {
     "@type": "Offer",
-    "price": "29.00",
-    "priceCurrency": "USD",
-    "availability": "https://schema.org/InStock",
-    "url": "https://${domain}/checkout"
+    "price": "OPERATOR-FILL",
+    "priceCurrency": "OPERATOR-FILL",
+    "availability": "https://schema.org/OPERATOR-FILL",
+    "url": "https://${domain}/OPERATOR-FILL"
   }
 }`,
-    } : undefined,
+          }
+        : undefined,
   });
 
-  // 3. Machine Actions & Merchant Return Policies (5 pts)
-  let actionScore = 0;
-  const hasPotentialAction = webApps.some((w) => !!w.potentialAction) || validNodes.some((n) => !!n.potentialAction);
-  const hasPolicy = offers.some((o) => !!o.hasMerchantReturnPolicy || !!o.shippingDetails);
-
-  if (hasPotentialAction) actionScore += 2.5;
-  if (hasPolicy) actionScore += 2.5;
+  const hasPotentialAction =
+    webApplications.some((node) => hasProperty(node, 'potentialAction')) ||
+    nodes.some((node) => hasProperty(node, 'potentialAction'));
+  const hasPolicy = offers.some(
+    (offer) =>
+      hasProperty(offer, 'hasMerchantReturnPolicy') || hasProperty(offer, 'shippingDetails'),
+  );
+  let actionScore = (hasPotentialAction ? 2.5 : 0) + (hasPolicy ? 2.5 : 0);
   if (actionScore === 0 && (hasProducts || hasOffers)) actionScore = 1.5;
 
   checks.push({
     id: 'off-003',
-    name: 'Autonomous SearchAction & Merchant Policies',
+    name: 'Machine actions and merchant policy declarations',
     dimension: 'intentAndOffers',
     status: actionScore >= 4 ? 'PASS' : actionScore > 0 ? 'WARN' : 'INFO',
     score: actionScore,
     maxScore: 5,
     message:
       actionScore >= 4
-        ? 'Potential machine actions (SearchAction / OrderAction) and merchant policy terms declared.'
+        ? 'Supplied evidence declares a potential action and merchant policy fields.'
         : actionScore > 0
-        ? 'Basic commerce items detected; formal SearchAction or refund policies not explicitly structured.'
-        : 'No potential actions (SearchAction) or merchant policies declared in schema graph.',
-    details: { hasPotentialAction, hasPolicy },
+          ? 'Basic commerce evidence is present, but actions or merchant policies are incomplete.'
+          : 'No potentialAction or merchant policy declaration was supplied.',
+    details: { hasPolicy, hasPotentialAction },
     remediation:
       actionScore < 4
-        ? 'Add `potentialAction: { "@type": "SearchAction", "target": "https://' + domain + '/search?q={search_term_string}" }` to your WebSite node.'
+        ? `Add only real actions and policies; for search, a candidate target is https://${domain}/search?q={search_term_string}.`
         : undefined,
   });
 

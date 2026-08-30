@@ -1,124 +1,126 @@
-import React, { useState, useEffect } from 'react';
-import { AuditResult, DimensionKey, isScoredAudit } from './types';
+import { useCallback, useState, useTransition } from 'react';
+
+import { AuditHero, type AuditRequest } from './components/AuditHero';
+import { BadgeEmbedDrawer } from './components/BadgeEmbedDrawer';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { RemediationAccordion } from './components/RemediationAccordion';
+import { ScorecardRadar } from './components/ScorecardRadar';
+import { ShareOnXButton } from './components/ShareOnXButton';
 import { runAudit } from './engine/auditEngine';
 import { PRESET_SITES } from './engine/fixtures';
-import { Header } from './components/Header';
-import { AuditHero } from './components/AuditHero';
-import { ScorecardRadar } from './components/ScorecardRadar';
-import { RemediationAccordion } from './components/RemediationAccordion';
-import { BadgeEmbedDrawer } from './components/BadgeEmbedDrawer';
-import { ShareOnXButton } from './components/ShareOnXButton';
-import { Footer } from './components/Footer';
+import type { AuditResult, DimensionKey } from './types';
+import { isScoredAudit } from './types';
 
-export const App: React.FC = () => {
-  const [currentUrl, setCurrentUrl] = useState('https://nymrel.com');
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanStep, setScanStep] = useState('');
+interface ViewState {
+  request: AuditRequest;
+  result: AuditResult;
+}
+
+function defaultRequest(): AuditRequest {
+  const fixture = PRESET_SITES.find((candidate) => candidate.id === 'nymrel');
+  return fixture ? { url: fixture.url, presetId: fixture.id } : { url: 'https://nymrel.example' };
+}
+
+function readInitialRequest(): AuditRequest {
+  try {
+    const parameters = new URLSearchParams(window.location.search);
+    const fixtureId = parameters.get('example');
+    const fixture = fixtureId
+      ? PRESET_SITES.find((candidate) => candidate.id === fixtureId)
+      : undefined;
+    if (fixture) return { url: fixture.url, presetId: fixture.id };
+
+    const domain = parameters.get('domain') ?? parameters.get('url');
+    if (domain) return { url: domain };
+  } catch {
+    // The deterministic default remains available if browser URL state is malformed.
+  }
+  return defaultRequest();
+}
+
+function calculateView(request: AuditRequest): ViewState {
+  return {
+    request,
+    result: runAudit({
+      url: request.url,
+      ...(request.presetId ? { presetId: request.presetId } : {}),
+      ...(request.jsonLd ? { jsonLdStrings: [request.jsonLd] } : {}),
+    }),
+  };
+}
+
+function updateBrowserLocation(request: AuditRequest): void {
+  const parameters = new URLSearchParams();
+  if (request.presetId) parameters.set('example', request.presetId);
+  else parameters.set('domain', request.url);
+  const query = parameters.toString();
+  window.history.replaceState({}, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+}
+
+export function App() {
+  const [view, setView] = useState<ViewState>(() => calculateView(readInitialRequest()));
   const [selectedDimension, setSelectedDimension] = useState<DimensionKey | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  // Initialize initial audit with Nymrel flagship preset
-  const [auditResult, setAuditResult] = useState<AuditResult>(() => {
-    return runAudit({ url: 'https://nymrel.com', presetId: 'nymrel' });
-  });
-
-  // Handle URL query parameters on initial page load (e.g. ?url=stripe.com)
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const presetId = params.get('example');
-      const targetParam = params.get('url') || params.get('domain');
-      const preset = presetId ? PRESET_SITES.find((candidate) => candidate.id === presetId) : undefined;
-      if (preset) {
-        handleTriggerAudit({ url: preset.url, presetId: preset.id });
-      } else if (targetParam) {
-        handleTriggerAudit({ url: targetParam });
-      }
-    } catch {
-      // Ignore URL parsing errors on fallback
-    }
+  const handleAudit = useCallback((request: AuditRequest) => {
+    const nextView = calculateView(request);
+    updateBrowserLocation(request);
+    setSelectedDimension(null);
+    startTransition(() => setView(nextView));
   }, []);
 
-  const handleTriggerAudit = (target: { url: string; presetId?: string; rawHtml?: string; jsonLd?: string }) => {
-    setCurrentUrl(target.url);
-    setIsScanning(true);
-    setSelectedDimension(null);
-
-    // Update browser URL query string for instant viral shareability
-    try {
-      const cleanTarget = target.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
-      const query = target.presetId
-        ? `example=${encodeURIComponent(target.presetId)}`
-        : `url=${encodeURIComponent(cleanTarget)}`;
-      const newUrl = `${window.location.pathname}?${query}`;
-      window.history.replaceState({}, '', newUrl);
-    } catch {
-      // Ignore
-    }
-
-    setScanStep(
-      target.presetId
-        ? 'Loading example fixture. No website request is made.'
-        : target.jsonLd
-          ? 'Evaluating manually supplied JSON-LD. No website request is made.'
-          : 'No website evidence supplied. Live verification is unavailable.'
-    );
-
-    window.setTimeout(() => {
-      const result = runAudit({
-        url: target.url,
-        presetId: target.presetId,
-        rawHtml: target.rawHtml,
-        jsonLdStrings: target.jsonLd ? [target.jsonLd] : undefined,
-      });
-      setAuditResult(result);
-      setIsScanning(false);
-      setScanStep('');
-    }, 120);
-  };
-
-  const handleReset = () => {
-    handleTriggerAudit({ url: 'https://nymrel.com', presetId: 'nymrel' });
-  };
+  const handleReset = useCallback(() => handleAudit(defaultRequest()), [handleAudit]);
+  const activeFixtureId = isScoredAudit(view.result) ? view.result.provenance.fixtureId : undefined;
 
   return (
     <div className="app-container">
+      <a className="skip-link" href="#diagnostic-main">
+        Skip to diagnostic
+      </a>
       <Header onReset={handleReset} />
 
-      <main className="main-content">
-        {/* Hero & URL Input */}
+      <main id="diagnostic-main" className="main-content" tabIndex={-1}>
         <AuditHero
-          currentUrl={currentUrl}
-          isScanning={isScanning}
-          scanStep={scanStep}
-          onAudit={handleTriggerAudit}
+          activeFixtureId={activeFixtureId}
+          currentUrl={view.request.url}
+          isPending={isPending}
+          onAudit={handleAudit}
         />
 
-        {/* Scorecard Visualizer (Radar + Radial Gauge + 5 Dimensions) */}
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {isPending
+            ? 'Updating the local diagnostic.'
+            : isScoredAudit(view.result)
+              ? `Diagnostic updated for ${view.result.domain}: ${view.result.totalScore} out of 100.`
+              : `No diagnostic score for ${view.result.domain}.`}
+        </div>
+
         <ScorecardRadar
-          result={auditResult}
-          onSelectDimension={(dim) => {
-            setSelectedDimension(dim);
-            const el = document.getElementById('remediation-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          result={view.result}
+          onSelectDimension={(dimension) => {
+            setSelectedDimension(dimension);
+            document.getElementById('remediation-section')?.scrollIntoView({
+              behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? 'auto'
+                : 'smooth',
+            });
           }}
         />
 
-        {/* 1-Click Viral Tweet & Share Bar */}
-        {isScoredAudit(auditResult) && (
+        {isScoredAudit(view.result) && (
           <>
-            {auditResult.provenance.kind === 'example_fixture' && <ShareOnXButton score={auditResult} />}
-
-            {/* Diagnostics & Remediation Accordion */}
+            {view.result.provenance.kind === 'illustrative_fixture' && (
+              <ShareOnXButton score={view.result} />
+            )}
             <div id="remediation-section">
               <RemediationAccordion
-                score={auditResult}
+                score={view.result}
                 selectedDimension={selectedDimension}
                 onClearDimension={() => setSelectedDimension(null)}
               />
             </div>
-
-            {/* SVG Machine Trust Badge Generator & Embed Drawer */}
-            <BadgeEmbedDrawer score={auditResult} />
+            <BadgeEmbedDrawer score={view.result} />
           </>
         )}
       </main>
@@ -126,4 +128,4 @@ export const App: React.FC = () => {
       <Footer />
     </div>
   );
-};
+}

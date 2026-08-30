@@ -1,7 +1,7 @@
-import { CheckItem } from '../../types';
+import type { CheckItem } from '../../types';
 
 export interface CrawlerAccessInput {
-  robotsTxt?: string | null;
+  robotsTxt?: string | null | undefined;
   domain: string;
 }
 
@@ -26,11 +26,12 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
       score: 0,
       maxScore: 4,
       message: 'No robots.txt evidence was supplied, so crawler access cannot be evaluated.',
-      remediation: 'Create a `robots.txt` file explicitly permitting AI search agents (OAI-SearchBot, PerplexityBot).',
+      remediation:
+        'Define and review a `robots.txt` policy for the public routes and crawlers you intend to permit.',
       codeSnippet: {
         language: 'markdown',
         filename: 'public/robots.txt',
-        description: 'Optimized robots.txt policy for AI agents',
+        description: 'Permissive robots.txt draft requiring content and security review',
         code: `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: https://${domain}/sitemap.xml\n`,
       },
     });
@@ -84,8 +85,10 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
         if (!rules['*']) rules['*'] = { allow: [], disallow: [] };
       }
       for (const ag of currentAgents) {
-        if (key === 'disallow') rules[ag].disallow.push(val);
-        else rules[ag].allow.push(val);
+        const rule = rules[ag];
+        if (!rule) continue;
+        if (key === 'disallow') rule.disallow.push(val);
+        else rule.allow.push(val);
       }
     }
   }
@@ -98,7 +101,7 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
     status: 'PASS',
     score: 4,
     maxScore: 4,
-    message: `robots.txt detected with ${Object.keys(rules).length} user-agent block(s).`,
+    message: `Supplied robots.txt evidence contains ${Object.keys(rules).length} parsed user-agent block(s).`,
     details: { userAgentsCount: Object.keys(rules).length },
   });
 
@@ -120,7 +123,10 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
   });
 
   const allowedSearchBots = botResults.filter((b) => b.allowed);
-  const searchBotScore = allowedSearchBots.length === AI_SEARCH_BOTS.length ? 8 : (allowedSearchBots.length / AI_SEARCH_BOTS.length) * 8;
+  const searchBotScore =
+    allowedSearchBots.length === AI_SEARCH_BOTS.length
+      ? 8
+      : (allowedSearchBots.length / AI_SEARCH_BOTS.length) * 8;
 
   checks.push({
     id: 'crw-002',
@@ -131,25 +137,28 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
     maxScore: 8,
     message:
       searchBotScore >= 7
-        ? `All AI search agents (${allowedSearchBots.map((b) => b.bot).join(', ')}) are allowed access for agentic catalog discovery.`
-        : `AI search bots are partially or completely blocked by robots.txt directives.`,
+        ? `The supplied rules appear to permit ${allowedSearchBots.map((b) => b.bot).join(', ')}. Permission does not guarantee crawling or indexing.`
+        : 'The supplied rules appear to block some or all evaluated AI search crawlers.',
     details: { allowedBots: allowedSearchBots.map((b) => b.bot) },
     remediation:
       searchBotScore < 7
-        ? 'Add `User-agent: OAI-SearchBot` and `Allow: /` to robots.txt to ensure your offers are indexed by ChatGPT Search and Claude.'
+        ? 'After content and security review, add explicit allow rules for the search crawlers you intend to permit. This cannot guarantee indexing.'
         : undefined,
-    codeSnippet: searchBotScore < 7 ? {
-      language: 'markdown',
-      filename: 'public/robots.txt',
-      description: 'Allow OAI-SearchBot and PerplexityBot',
-      code: `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n`,
-    } : undefined,
+    codeSnippet:
+      searchBotScore < 7
+        ? {
+            language: 'markdown',
+            filename: 'public/robots.txt',
+            description: 'Allow OAI-SearchBot and PerplexityBot',
+            code: `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n`,
+          }
+        : undefined,
   });
 
   // 3. Granular Crawler Policy (8 pts)
   let policyScore = 0;
   const hasSpecificAiRules = Object.keys(rules).some((k) =>
-    /oai-searchbot|claudebot|perplexitybot|gptbot|anthropic|google-extended/i.test(k)
+    /oai-searchbot|claudebot|perplexitybot|gptbot|anthropic|google-extended/i.test(k),
   );
 
   if (hasSpecificAiRules && !hasBlanketDisallow) {
@@ -171,14 +180,14 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
     maxScore: 8,
     message:
       policyScore === 8
-        ? 'Advanced granular crawler policy active: explicitly distinguishes AI search indexing from raw web scraping.'
+        ? 'Supplied evidence contains crawler-specific rules without a blanket root block.'
         : policyScore >= 5
-        ? 'Standard crawler policy active without hostile blanket crawl barriers.'
-        : 'Indiscriminate `Disallow: /` blanket block detected without AI agent exceptions.',
+          ? 'Supplied evidence permits general crawling or includes crawler-specific exceptions.'
+          : 'Supplied evidence contains a blanket root block without evaluated AI crawler exceptions.',
     details: { hasSpecificAiRules, hasBlanketDisallow },
     remediation:
       policyScore < 6
-        ? 'Replace indiscriminate blanket blocks with targeted bot directives allowing commercial search agents.'
+        ? 'Review blanket blocks and add narrowly scoped crawler exceptions only where they match the intended public-content policy.'
         : undefined,
   });
 
