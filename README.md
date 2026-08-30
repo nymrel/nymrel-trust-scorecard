@@ -6,7 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=flat-square&logo=vite)](https://vitejs.dev)
 
-> **Deterministic AI Readiness & Machine Trust Web Application** built in the **Nymrel Warm Paper design aesthetic** (`#FAF8F2`, `#F4F0E6`, `#2A332E`, `#A8541F`). Audit any website for AI Agent Readiness, Schema.org Machine Trust, Universal Commerce Protocol (UCP), and AI Search Bot discoverability.
+> **Deterministic AI Readiness & Machine Trust Web Application** built in the **Nymrel Warm Paper design aesthetic** (`#FAF8F2`, `#F4F0E6`, `#2A332E`, `#A8541F`). Score labeled example fixtures or evidence supplied manually in the browser; this release does not fetch websites or live-verify domains.
 
 ---
 
@@ -18,9 +18,9 @@
   3. **UCP Commerce & Offers (20 pts)**: Structured `Product`, `Offer`, ISO 4217 currencies, real-time availability, and merchant return policies.
   4. **Autonomous Machine Payments (20 pts)**: Native HTTP 402 / `x402` micropayments, AP2/ACP negotiation, headless Stripe agent links, and stablecoin rails.
   5. **AI Search Bot Access (20 pts)**: Explicit permissions for `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot`, and granular crawler policies.
-- ⚡ **Interactive SVG Radar Visualizer**: High-precision 5-axis polygon radar chart with live percentage nodes and radial score gauge.
+- ⚡ **Interactive SVG Radar Visualizer**: High-precision 5-axis polygon radar chart with deterministic percentage nodes and radial score gauge.
 - 🛠️ **1-Click Code Remediation**: Immediate, copyable TypeScript / JSON / Markdown fixes using [`@nymrel/machine-trust`](https://github.com/nymrel/nymrel-machine-trust) and [`@nymrel/open-ucp`](https://github.com/nymrel/open-ucp).
-- 🏷️ **Live SVG Machine Trust Badge Generator**: Create embeddable markdown/HTML badges in Warm Paper, Cedar Forest, Terracotta, and Minimal Stone styles for GitHub READMEs.
+- 🏷️ **Local SVG Badge Preview Generator**: Create a labeled local preview in Warm Paper, Cedar Forest, Terracotta, and Minimal Stone styles.
 - 🚀 **Viral Growth Systems**:
   - 1-Click X (Twitter) share intent: *"My site scored 96/100 on @nymrel Machine Trust Scorecard! Check your AI agent readiness..."*
   - Shareable URL hashes & query strings (`?url=stripe.com`) for instant reproducibility.
@@ -104,11 +104,11 @@ nymrel-trust-scorecard/
 │   │   ├── fixtures.ts          # Realistic presets (Nymrel, Stripe, Shopify, OpenAI)
 │   │   └── evaluators/          # Dimension-specific evaluation modules
 │   └── components/
-│       ├── Header.tsx           # Brand mark, live crawler counter, GitHub link
+│       ├── Header.tsx           # Brand mark, example-mode notice, GitHub link
 │       ├── AuditHero.tsx        # Search bar, 1-click presets & scanning feedback
 │       ├── ScorecardRadar.tsx   # 5-axis SVG radar visualizer & dimension breakdown
 │       ├── RemediationAccordion.tsx # 1-click copyable code patches
-│       ├── BadgeEmbedDrawer.tsx # Live SVG badge builder with Markdown/HTML code
+│       ├── BadgeEmbedDrawer.tsx # Local SVG badge preview with labeled example code
 │       ├── ShareOnXButton.tsx   # Viral tweet & social copy bar
 │       └── Footer.tsx           # Nymrel -> JalenBuilds LLC entity provenance
 └── test/                        # Node.js test runner unit test suite

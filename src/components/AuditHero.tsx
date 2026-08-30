@@ -88,8 +88,7 @@ export const AuditHero: React.FC<AuditHeroProps> = ({
         margin: '0 auto 32px auto',
         lineHeight: 1.6,
       }}>
-        Deterministic 0–100 benchmark evaluating AI Searchbot access, Schema.org entity provenance,
-        Universal Commerce Protocol (UCP), and machine payments.
+        A deterministic scorer for clearly labeled example fixtures or evidence you paste here. This browser demo does not fetch websites or live-verify domains.
       </p>
 
       {/* URL Input Bar */}
@@ -113,7 +112,7 @@ export const AuditHero: React.FC<AuditHeroProps> = ({
           type="text"
           value={inputUrl}
           onChange={(e) => setInputUrl(e.target.value)}
-          placeholder="Enter any domain (e.g. stripe.com, shopify.com, yourdomain.com)"
+          placeholder="Enter a domain to label supplied evidence or choose an example"
           disabled={isScanning}
           style={{
             flex: 1,
@@ -140,11 +139,11 @@ export const AuditHero: React.FC<AuditHeroProps> = ({
           {isScanning ? (
             <>
               <Zap size={16} className="pulse-badge" />
-              <span>Auditing...</span>
+              <span>Preparing result...</span>
             </>
           ) : (
             <>
-              <span>Audit Site</span>
+              <span>Review input</span>
               <ArrowRight size={16} />
             </>
           )}
@@ -169,7 +168,7 @@ export const AuditHero: React.FC<AuditHeroProps> = ({
           fontWeight: 500,
         }}>
           <Sparkles size={16} color="var(--color-terracotta)" className="spin-slow" />
-          <span>{scanStep || 'Executing dual-audience machine trust scan...'}</span>
+          <span>{scanStep || 'Preparing a local, not-live-verified result...'}</span>
         </div>
       )}
 
@@ -188,7 +187,7 @@ export const AuditHero: React.FC<AuditHeroProps> = ({
           fontWeight: 600,
           marginRight: '4px',
         }}>
-          1-Click Presets:
+          Example fixtures:
         </span>
         {PRESET_SITES.map((preset) => {
           const isActive = cleanUrl(preset.url) === cleanUrl(inputUrl);
@@ -226,7 +225,7 @@ export const AuditHero: React.FC<AuditHeroProps> = ({
               }}
             >
               {preset.id === 'nymrel' && <ShieldCheck size={13} color={isActive ? '#FAF8F2' : '#A8541F'} />}
-              <span>{preset.name}</span>
+              <span>{preset.name} example</span>
             </button>
           );
         })}
@@ -258,7 +257,7 @@ export const AuditHero: React.FC<AuditHeroProps> = ({
             margin: '12px auto 0 auto',
           }}>
             <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-cedar)', display: 'block', marginBottom: '6px' }}>
-              Paste Custom Schema.org JSON-LD (optional):
+              Paste manual Schema.org JSON-LD (optional):
             </label>
             <textarea
               rows={4}
@@ -275,6 +274,9 @@ export const AuditHero: React.FC<AuditHeroProps> = ({
                 backgroundColor: 'var(--color-surface-warm)',
               }}
             />
+            <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '8px 0 0', lineHeight: 1.5 }}>
+              Pasted evidence is evaluated locally and is not live-verified. A domain alone will not receive a score.
+            </p>
           </div>
         )}
       </div>

@@ -1,15 +1,49 @@
 import React, { useState } from 'react';
-import { AuditScore, DimensionKey } from '../types';
+import { AuditResult, DimensionKey, isScoredAudit } from '../types';
 import { dimensions as dimensionConfigs, colors } from '../theme/tokens';
 import { Sparkles, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 
 interface ScorecardRadarProps {
-  score: AuditScore;
+  result: AuditResult;
   onSelectDimension?: (key: DimensionKey) => void;
 }
 
-export const ScorecardRadar: React.FC<ScorecardRadarProps> = ({ score, onSelectDimension }) => {
+export const ScorecardRadar: React.FC<ScorecardRadarProps> = ({ result, onSelectDimension }) => {
   const [activeHoverDim, setActiveHoverDim] = useState<DimensionKey | null>(null);
+
+  if (!isScoredAudit(result)) {
+    return (
+      <div style={{
+        backgroundColor: 'var(--color-surface)',
+        border: '1px solid var(--color-stone-border)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '32px 24px',
+        boxShadow: 'var(--shadow-lg)',
+        marginBottom: '32px',
+      }}>
+        <span style={{
+          display: 'inline-block',
+          fontSize: '12px',
+          backgroundColor: 'var(--color-linen)',
+          border: '1px solid var(--color-stone-border)',
+          padding: '3px 10px',
+          borderRadius: 'var(--radius-full)',
+          color: 'var(--color-text-secondary)',
+          fontWeight: 700,
+        }}>
+          {result.provenance.label}
+        </span>
+        <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-cedar)', margin: '14px 0 8px' }}>
+          No score for {result.domain}
+        </h2>
+        <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', maxWidth: '680px', lineHeight: 1.6, margin: 0 }}>
+          {result.provenance.description}
+        </p>
+      </div>
+    );
+  }
+
+  const score = result;
 
   const dimensionKeys: DimensionKey[] = [
     'discovery',
@@ -86,6 +120,9 @@ export const ScorecardRadar: React.FC<ScorecardRadarProps> = ({ score, onSelectD
           </div>
           <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', maxWidth: '640px', lineHeight: 1.5 }}>
             {score.verdict}
+          </p>
+          <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', maxWidth: '640px', lineHeight: 1.5, marginBottom: 0 }}>
+            <strong>{score.provenance.label}:</strong> {score.provenance.description}
           </p>
         </div>
 

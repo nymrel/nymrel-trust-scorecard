@@ -56,6 +56,33 @@ export interface AuditScore {
   checks: CheckItem[];
   entityName?: string;
   domain: string;
+  provenance: AuditProvenance;
+}
+
+export interface AuditProvenance {
+  kind: 'example_fixture' | 'manual_evidence';
+  label: 'Example fixture' | 'Manual evidence';
+  description: string;
+  liveVerified: false;
+  fixtureId?: string;
+}
+
+export interface AuditUnavailable {
+  status: 'unavailable';
+  domain: string;
+  entityName: string;
+  provenance: {
+    kind: 'no_evidence';
+    label: 'Not live verified';
+    description: string;
+    liveVerified: false;
+  };
+}
+
+export type AuditResult = AuditScore | AuditUnavailable;
+
+export function isScoredAudit(result: AuditResult): result is AuditScore {
+  return !('status' in result && result.status === 'unavailable');
 }
 
 export interface PresetSite {

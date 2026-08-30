@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AuditScore, DimensionKey } from './types';
+import { AuditResult, DimensionKey, isScoredAudit } from './types';
 import { runAudit } from './engine/auditEngine';
+import { PRESET_SITES } from './engine/fixtures';
 import { Header } from './components/Header';
 import { AuditHero } from './components/AuditHero';
 import { ScorecardRadar } from './components/ScorecardRadar';
@@ -16,7 +17,7 @@ export const App: React.FC = () => {
   const [selectedDimension, setSelectedDimension] = useState<DimensionKey | null>(null);
 
   // Initialize initial audit with Nymrel flagship preset
-  const [auditScore, setAuditScore] = useState<AuditScore>(() => {
+  const [auditResult, setAuditResult] = useState<AuditResult>(() => {
     return runAudit({ url: 'https://nymrel.com', presetId: 'nymrel' });
   });
 
@@ -24,8 +25,12 @@ export const App: React.FC = () => {
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
+      const presetId = params.get('example');
       const targetParam = params.get('url') || params.get('domain');
-      if (targetParam) {
+      const preset = presetId ? PRESET_SITES.find((candidate) => candidate.id === presetId) : undefined;
+      if (preset) {
+        handleTriggerAudit({ url: preset.url, presetId: preset.id });
+      } else if (targetParam) {
         handleTriggerAudit({ url: targetParam });
       }
     } catch {
@@ -41,40 +46,34 @@ export const App: React.FC = () => {
     // Update browser URL query string for instant viral shareability
     try {
       const cleanTarget = target.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
-      const newUrl = `${window.location.pathname}?url=${encodeURIComponent(cleanTarget)}`;
+      const query = target.presetId
+        ? `example=${encodeURIComponent(target.presetId)}`
+        : `url=${encodeURIComponent(cleanTarget)}`;
+      const newUrl = `${window.location.pathname}?${query}`;
       window.history.replaceState({}, '', newUrl);
     } catch {
       // Ignore
     }
 
-    const steps = [
-      'Probing robots.txt for OAI-SearchBot & PerplexityBot access...',
-      'Extracting Schema.org JSON-LD graph & parentOrganization hierarchy...',
-      'Inspecting Universal Commerce Protocol (UCP) manifest & endpoints...',
-      'Evaluating HTTP 402 / x402 headers & autonomous payment rails...',
-      'Synthesizing Machine Trust Index and generating code patches...',
-    ];
+    setScanStep(
+      target.presetId
+        ? 'Loading example fixture. No website request is made.'
+        : target.jsonLd
+          ? 'Evaluating manually supplied JSON-LD. No website request is made.'
+          : 'No website evidence supplied. Live verification is unavailable.'
+    );
 
-    let stepIdx = 0;
-    setScanStep(steps[0]);
-
-    const stepInterval = setInterval(() => {
-      stepIdx++;
-      if (stepIdx < steps.length) {
-        setScanStep(steps[stepIdx]);
-      } else {
-        clearInterval(stepInterval);
-        const result = runAudit({
-          url: target.url,
-          presetId: target.presetId,
-          rawHtml: target.rawHtml,
-          jsonLdStrings: target.jsonLd ? [target.jsonLd] : undefined,
-        });
-        setAuditScore(result);
-        setIsScanning(false);
-        setScanStep('');
-      }
-    }, 280);
+    window.setTimeout(() => {
+      const result = runAudit({
+        url: target.url,
+        presetId: target.presetId,
+        rawHtml: target.rawHtml,
+        jsonLdStrings: target.jsonLd ? [target.jsonLd] : undefined,
+      });
+      setAuditResult(result);
+      setIsScanning(false);
+      setScanStep('');
+    }, 120);
   };
 
   const handleReset = () => {
@@ -96,7 +95,7 @@ export const App: React.FC = () => {
 
         {/* Scorecard Visualizer (Radar + Radial Gauge + 5 Dimensions) */}
         <ScorecardRadar
-          score={auditScore}
+          result={auditResult}
           onSelectDimension={(dim) => {
             setSelectedDimension(dim);
             const el = document.getElementById('remediation-section');
@@ -105,19 +104,23 @@ export const App: React.FC = () => {
         />
 
         {/* 1-Click Viral Tweet & Share Bar */}
-        <ShareOnXButton score={auditScore} />
+        {isScoredAudit(auditResult) && (
+          <>
+            {auditResult.provenance.kind === 'example_fixture' && <ShareOnXButton score={auditResult} />}
 
-        {/* Diagnostics & Remediation Accordion */}
-        <div id="remediation-section">
-          <RemediationAccordion
-            score={auditScore}
-            selectedDimension={selectedDimension}
-            onClearDimension={() => setSelectedDimension(null)}
-          />
-        </div>
+            {/* Diagnostics & Remediation Accordion */}
+            <div id="remediation-section">
+              <RemediationAccordion
+                score={auditResult}
+                selectedDimension={selectedDimension}
+                onClearDimension={() => setSelectedDimension(null)}
+              />
+            </div>
 
-        {/* SVG Machine Trust Badge Generator & Embed Drawer */}
-        <BadgeEmbedDrawer score={auditScore} />
+            {/* SVG Machine Trust Badge Generator & Embed Drawer */}
+            <BadgeEmbedDrawer score={auditResult} />
+          </>
+        )}
       </main>
 
       <Footer />

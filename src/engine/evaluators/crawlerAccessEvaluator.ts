@@ -22,10 +22,10 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
       id: 'crw-001',
       name: 'robots.txt Presence & Structure',
       dimension: 'aiCrawlerAccess',
-      status: 'WARN',
-      score: 2,
+      status: 'INFO',
+      score: 0,
       maxScore: 4,
-      message: 'No robots.txt found at root path. Defaulting to standard permissive web crawler access.',
+      message: 'No robots.txt evidence was supplied, so crawler access cannot be evaluated.',
       remediation: 'Create a `robots.txt` file explicitly permitting AI search agents (OAI-SearchBot, PerplexityBot).',
       codeSnippet: {
         language: 'markdown',
@@ -39,20 +39,20 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
       id: 'crw-002',
       name: 'AI Search Bot Discoverability',
       dimension: 'aiCrawlerAccess',
-      status: 'PASS',
-      score: 8,
+      status: 'INFO',
+      score: 0,
       maxScore: 8,
-      message: 'Permissive default: AI search bots (OAI-SearchBot, PerplexityBot) can crawl and index offers.',
+      message: 'AI search bot access is unknown without supplied robots.txt evidence.',
     });
 
     checks.push({
       id: 'crw-003',
       name: 'Granular AI Crawler Policy',
       dimension: 'aiCrawlerAccess',
-      status: 'WARN',
-      score: 4,
+      status: 'INFO',
+      score: 0,
       maxScore: 8,
-      message: 'No explicit crawler posture defined. Consider explicitly separating AI search discovery from scraper bots.',
+      message: 'Crawler policy cannot be evaluated without supplied robots.txt evidence.',
     });
 
     return checks;

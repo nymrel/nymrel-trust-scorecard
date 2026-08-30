@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Shield, Radio, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
@@ -6,16 +6,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onReset }) => {
-  const [auditCount, setAuditCount] = useState(14892);
-
-  // Subtle simulated live ticker incrementing periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAuditCount((prev) => prev + Math.floor(Math.random() * 3) + 1);
-    }, 4500);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <header style={{
       borderBottom: '1px solid var(--color-stone-border)',
@@ -89,14 +79,14 @@ export const Header: React.FC<HeaderProps> = ({ onReset }) => {
           </div>
         </div>
 
-        {/* Live Counters & External Links */}
+        {/* Example-mode notice & external links */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '16px',
           flexWrap: 'wrap',
         }}>
-          {/* Live AI Crawl Ticker */}
+          {/* No-live-fetch notice */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -108,12 +98,10 @@ export const Header: React.FC<HeaderProps> = ({ onReset }) => {
             fontSize: '12px',
             color: 'var(--color-text-secondary)',
           }}>
-            <Radio size={13} color="var(--color-terracotta)" className="pulse-badge" />
+            <Radio size={13} color="var(--color-terracotta)" />
             <span>
-              <strong style={{ color: 'var(--color-cedar)', fontWeight: 700 }}>
-                {auditCount.toLocaleString()}
-              </strong>{' '}
-              sites audited by AI crawlers
+              <strong style={{ color: 'var(--color-cedar)', fontWeight: 700 }}>Example mode</strong>{' '}
+              — no website fetches
             </span>
           </div>
 

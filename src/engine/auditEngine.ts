@@ -1,4 +1,4 @@
-import { AuditScore, CheckItem, PresetSite } from '../types';
+import { AuditProvenance, AuditResult, CheckItem, PresetSite } from '../types';
 import { PRESET_SITES } from './fixtures';
 import { evaluateDiscovery } from './evaluators/discoveryEvaluator';
 import { evaluateEntityGraph } from './evaluators/entityGraphEvaluator';
@@ -32,7 +32,7 @@ export function cleanDomain(urlOrDomain: string): string {
   }
 }
 
-export function runAudit(input: AuditTargetInput): AuditScore {
+export function runAudit(input: AuditTargetInput): AuditResult {
   const domain = cleanDomain(input.url);
 
   // Check if target matches any preset
@@ -46,14 +46,39 @@ export function runAudit(input: AuditTargetInput): AuditScore {
     });
   }
 
-  // Merge preset data if available or use provided inputs
-  const rawHtml = input.rawHtml ?? matchedPreset?.mockData.rawHtml ?? `<!DOCTYPE html><html><head><title>${domain}</title></head><body><h1>${domain}</h1></body></html>`;
+  const hasManualEvidence = [
+    input.rawHtml,
+    input.jsonLdStrings,
+    input.robotsTxt,
+    input.llmsTxt,
+    input.llmsFullTxt,
+    input.ucpManifest,
+    input.headers,
+  ].some((value) => value !== undefined);
+
+  if (!matchedPreset && !hasManualEvidence) {
+    return {
+      status: 'unavailable',
+      domain,
+      entityName: domain,
+      provenance: {
+        kind: 'no_evidence',
+        label: 'Not live verified',
+        description: 'No website request was made. Enter manual evidence or choose an example fixture to calculate a deterministic score.',
+        liveVerified: false,
+      },
+    };
+  }
+
+  // Only example fixtures or explicitly supplied evidence may be evaluated.
+  // This browser-only app never fills missing website evidence from a domain.
+  const rawHtml = input.rawHtml ?? matchedPreset?.mockData.rawHtml;
   const jsonLdStrings = input.jsonLdStrings ?? matchedPreset?.mockData.jsonLdStrings ?? [];
-  const robotsTxt = input.robotsTxt ?? matchedPreset?.mockData.robotsTxt ?? `User-agent: *\nAllow: /\nSitemap: https://${domain}/sitemap.xml\n`;
+  const robotsTxt = input.robotsTxt ?? matchedPreset?.mockData.robotsTxt;
   const llmsTxt = input.llmsTxt ?? matchedPreset?.mockData.llmsTxt;
   const llmsFullTxt = input.llmsFullTxt ?? matchedPreset?.mockData.llmsFullTxt;
   const ucpManifest = input.ucpManifest ?? matchedPreset?.mockData.ucpManifest;
-  const headers = input.headers ?? matchedPreset?.mockData.headers ?? {};
+  const headers = input.headers ?? matchedPreset?.mockData.headers;
 
   // Execute all 5 evaluators
   const allChecks: CheckItem[] = [];
@@ -100,5 +125,20 @@ export function runAudit(input: AuditTargetInput): AuditScore {
   allChecks.push(...crawlerChecks);
 
   const entityName = matchedPreset?.name ?? domain;
-  return calculateAuditScore(allChecks, domain, entityName);
+  const provenance: AuditProvenance = matchedPreset
+    ? {
+        kind: 'example_fixture' as const,
+        label: 'Example fixture' as const,
+        description: `Deterministic example data for ${matchedPreset.name}; it is not a live audit of ${domain}.`,
+        liveVerified: false as const,
+        fixtureId: matchedPreset.id,
+      }
+    : {
+        kind: 'manual_evidence' as const,
+        label: 'Manual evidence' as const,
+        description: 'Score calculated only from evidence supplied in this browser. No website request or live verification occurred.',
+        liveVerified: false as const,
+      };
+
+  return calculateAuditScore(allChecks, domain, entityName, provenance);
 }

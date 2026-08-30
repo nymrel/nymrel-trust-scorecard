@@ -1,7 +1,12 @@
-import { AuditScore, CheckItem, DimensionKey, DimensionScore, Grade } from '../types';
+import { AuditProvenance, AuditScore, CheckItem, DimensionKey, DimensionScore, Grade } from '../types';
 import { dimensions as dimensionConfigs } from '../theme/tokens';
 
-export function calculateAuditScore(checks: CheckItem[], domain: string, entityName?: string): AuditScore {
+export function calculateAuditScore(
+  checks: CheckItem[],
+  domain: string,
+  entityName: string | undefined,
+  provenance: AuditProvenance,
+): AuditScore {
   const dimensionKeys: DimensionKey[] = [
     'discovery',
     'entityGraph',
@@ -68,6 +73,7 @@ export function calculateAuditScore(checks: CheckItem[], domain: string, entityN
     checks,
     entityName: entityName || domain,
     domain,
+    provenance,
   };
 }
 
@@ -109,13 +115,13 @@ function generateVerdict(grade: Grade, domain: string): { summary: string; verdi
   }
   if (grade === 'C') {
     return {
-      summary: `${domain} has basic metadata or schema present, but lacks formal AI agent orientation (/llms.txt), verified parent entity provenance, or machine payment rails.`,
+      summary: `${domain} has basic metadata or schema present, but lacks formal AI agent orientation (/llms.txt), parent entity evidence, or machine payment rails.`,
       verdict: 'Partial AI Readiness — Missing key agentic commerce protocols and machine trust provenance.',
     };
   }
   if (grade === 'D') {
     return {
-      summary: `${domain} is built strictly for legacy human browser navigation. AI agents encounter sparse schema, unverified pricing, and no programmatic commerce interfaces.`,
+      summary: `${domain} is built strictly for legacy human browser navigation. The supplied evidence shows sparse schema, incomplete pricing evidence, and no programmatic commerce interfaces.`,
       verdict: 'Legacy Web Structure — Opaque to autonomous agents with minimal machine-readable data.',
     };
   }

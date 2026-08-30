@@ -133,7 +133,7 @@ export function evaluateEntityGraph(input: EntityGraphInput): CheckItem[] {
     maxScore: 7,
     message:
       provenanceScore >= 6
-        ? `Dual-audience entity hierarchy verified: [${parentChain.join('; ') || orgs.map((o) => o.name).join(', ')}]`
+        ? `Dual-audience entity hierarchy declared in supplied evidence: [${parentChain.join('; ') || orgs.map((o) => o.name).join(', ')}]`
         : orgs.length > 0
         ? `Basic Organization schema present (${orgs.map((o) => o.name).join(', ')}), but missing explicit parentOrganization or legal ownership registration.`
         : 'Missing Organization / Corporation Schema.org node for entity verification.',
@@ -181,7 +181,7 @@ export const machineTrust = createMachineTrustEngine({
     maxScore: 7,
     message:
       contactScore >= 5
-        ? 'Verified contact points, official logos, and sameAs authority links declared for machine trust.'
+        ? 'Supplied evidence includes contact points, logos, and sameAs authority links for machine trust.'
         : contactScore > 0
         ? 'Partial contact or authority anchors found.'
         : 'No machine contact points (email, contactPoint) or social sameAs anchors declared.',

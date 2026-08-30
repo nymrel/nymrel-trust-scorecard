@@ -21,7 +21,7 @@ export function evaluateMachinePayments(input: MachinePaymentsInput): CheckItem[
     score: hasUcp ? 6 : 0,
     maxScore: 6,
     message: hasUcp
-      ? `Universal Commerce Protocol manifest verified at /.well-known/ucp. Version: ${(ucpManifest as any).ucpVersion || '1.0'}`
+      ? `Universal Commerce Protocol manifest supplied as evidence. Version: ${(ucpManifest as any).ucpVersion || '1.0'}`
       : 'No UCP manifest found at `/.well-known/ucp` or `/ucp.json`. Autonomous agents cannot negotiate purchases.',
     details: { hasUcp, version: (ucpManifest as any)?.ucpVersion },
     remediation: !hasUcp

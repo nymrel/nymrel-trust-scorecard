@@ -51,7 +51,7 @@ export function generateBadgeSvg(score: number, grade: Grade, options: Partial<B
   </defs>
   <path d="M 80 12 L 144 32 L 144 95 C 144 135 80 168 80 168 C 80 168 16 135 16 95 L 16 32 Z" fill="url(#shieldGrad)" stroke="${borderColor}" stroke-width="3"/>
   <path d="M 80 26 L 132 42 L 132 94 C 132 126 80 152 80 152 C 80 152 28 126 28 94 L 28 42 Z" fill="none" stroke="#FAF8F2" stroke-opacity="0.2" stroke-width="1.5"/>
-  <text x="80" y="65" fill="#FAF8F2" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" text-anchor="middle" letter-spacing="1">NYMREL VERIFIED</text>
+  <text x="80" y="65" fill="#FAF8F2" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" text-anchor="middle" letter-spacing="1">NYMREL SCORECARD</text>
   <text x="80" y="105" fill="#FAF8F2" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="900" text-anchor="middle">${score}</text>
   <rect x="52" y="118" width="56" height="20" rx="10" fill="${scoreBg}"/>
   <text x="80" y="132" fill="#FAF8F2" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="800" text-anchor="middle">GRADE ${grade}</text>

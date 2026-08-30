@@ -69,7 +69,7 @@ export const BadgeEmbedDrawer: React.FC<BadgeEmbedDrawerProps> = ({ score }) => 
             <span>Machine Trust Badge Generator</span>
           </h3>
           <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
-            Embed a live, verified Machine Trust badge in your GitHub README, website footer, or documentation.
+            Local badge preview for this {score.provenance.label.toLowerCase()}. It is not a live-verified badge or a hosted verification service.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export const BadgeEmbedDrawer: React.FC<BadgeEmbedDrawerProps> = ({ score }) => 
         </button>
       </div>
 
-      {/* Grid: Left Customizer Controls, Right Live Preview & Embed Code */}
+      {/* Grid: Left Customizer Controls, Right Local Preview & Example Code */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -183,10 +183,10 @@ export const BadgeEmbedDrawer: React.FC<BadgeEmbedDrawerProps> = ({ score }) => 
           </div>
         </div>
 
-        {/* Live Preview & Code Block */}
+        {/* Local Preview & Code Block */}
         <div>
           <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-cedar)', display: 'block', marginBottom: '8px' }}>
-            Live Rendered Preview
+            Local SVG Preview
           </label>
           <div style={{
             backgroundColor: 'var(--color-linen)',
@@ -204,6 +204,9 @@ export const BadgeEmbedDrawer: React.FC<BadgeEmbedDrawerProps> = ({ score }) => 
 
           {/* Code Tabs */}
           <div>
+            <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: '0 0 12px' }}>
+              Example embed code assumes a separately reviewed hosted badge service. It does not make this score current-domain verified.
+            </p>
             <div style={{
               display: 'flex',
               alignItems: 'center',

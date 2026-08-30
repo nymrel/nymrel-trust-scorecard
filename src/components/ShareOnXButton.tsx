@@ -10,8 +10,10 @@ export const ShareOnXButton: React.FC<ShareOnXButtonProps> = ({ score }) => {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedSnippet, setCopiedSnippet] = useState(false);
 
-  const shareUrl = `https://score.nymrel.com/?url=${encodeURIComponent(score.domain)}`;
-  const tweetText = `My site scored ${score.totalScore}/100 (Grade ${score.grade}) on @nymrel Machine Trust Scorecard! Check your AI agent readiness: ${shareUrl}`;
+  const shareUrl = score.provenance.fixtureId
+    ? `https://score.nymrel.com/?example=${encodeURIComponent(score.provenance.fixtureId)}`
+    : 'https://score.nymrel.com/';
+  const tweetText = `${score.provenance.label} scorecard for ${score.domain}: ${score.totalScore}/100 (Grade ${score.grade}). Not live-verified. ${shareUrl}`;
   const tweetIntentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
   const handleCopyLink = () => {
@@ -21,7 +23,7 @@ export const ShareOnXButton: React.FC<ShareOnXButtonProps> = ({ score }) => {
   };
 
   const handleCopySnippet = () => {
-    const summary = `🛡️ Machine Trust Audit for ${score.domain}: ${score.totalScore}/100 (Grade ${score.grade})\n• Discovery: ${score.dimensions.discovery.score}/20\n• Entity Graph: ${score.dimensions.entityGraph.score}/20\n• Offers & Commerce: ${score.dimensions.intentAndOffers.score}/20\n• Machine Payments: ${score.dimensions.machinePayments.score}/20\n• Crawler Access: ${score.dimensions.aiCrawlerAccess.score}/20\n\nAudit your domain: ${shareUrl}`;
+    const summary = `🛡️ ${score.provenance.label} scorecard for ${score.domain}: ${score.totalScore}/100 (Grade ${score.grade})\nNot live-verified: ${score.provenance.description}\n• Discovery: ${score.dimensions.discovery.score}/20\n• Entity Graph: ${score.dimensions.entityGraph.score}/20\n• Offers & Commerce: ${score.dimensions.intentAndOffers.score}/20\n• Machine Payments: ${score.dimensions.machinePayments.score}/20\n• Crawler Access: ${score.dimensions.aiCrawlerAccess.score}/20\n\nReview the demo: ${shareUrl}`;
     navigator.clipboard.writeText(summary);
     setCopiedSnippet(true);
     setTimeout(() => setCopiedSnippet(false), 2000);
