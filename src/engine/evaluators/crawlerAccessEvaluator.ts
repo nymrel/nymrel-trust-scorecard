@@ -63,6 +63,7 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
   const lines = robotsTxt.split(/\r?\n/);
   const rules: Record<string, { allow: string[]; disallow: string[] }> = {};
   let currentAgents: string[] = [];
+  let currentGroupHasRules = false;
 
   for (let line of lines) {
     line = line.replace(/#.*$/, '').trim();
@@ -75,15 +76,15 @@ export function evaluateCrawlerAccess(input: CrawlerAccessInput): CheckItem[] {
     const val = line.slice(colonIdx + 1).trim();
 
     if (key === 'user-agent') {
-      currentAgents = [val];
-      for (const ag of currentAgents) {
-        if (!rules[ag]) rules[ag] = { allow: [], disallow: [] };
+      if (currentGroupHasRules) {
+        currentAgents = [];
+        currentGroupHasRules = false;
       }
+      currentAgents.push(val);
+      if (!rules[val]) rules[val] = { allow: [], disallow: [] };
     } else if (key === 'disallow' || key === 'allow') {
-      if (currentAgents.length === 0) {
-        currentAgents = ['*'];
-        if (!rules['*']) rules['*'] = { allow: [], disallow: [] };
-      }
+      if (currentAgents.length === 0) continue;
+      currentGroupHasRules = true;
       for (const ag of currentAgents) {
         const rule = rules[ag];
         if (!rule) continue;

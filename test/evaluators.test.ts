@@ -145,4 +145,29 @@ describe('crawler evaluator', () => {
     expect(allowed[1]).toMatchObject({ status: 'PASS', score: 8 });
     expect(allowed[1]?.message).toContain('does not guarantee');
   });
+
+  it('applies shared directives to every user-agent in a group', () => {
+    const checks = evaluateCrawlerAccess({
+      domain: 'example.com',
+      robotsTxt:
+        'User-agent: OAI-SearchBot\nUser-agent: PerplexityBot\n# shared policy\n\nDisallow: /',
+    });
+
+    expect(checks[1]).toMatchObject({ status: 'WARN', score: 4.8 });
+    expect(checks[1]?.details).toEqual({
+      allowedBots: ['ClaudeBot', 'Applebot-Extended', 'Bingbot'],
+    });
+  });
+
+  it('ignores directives that are not associated with a user-agent group', () => {
+    const checks = evaluateCrawlerAccess({
+      domain: 'example.com',
+      robotsTxt: 'Disallow: /\n\nUser-agent: *',
+    });
+
+    expect(checks[1]).toMatchObject({ status: 'PASS', score: 8 });
+    expect(checks[1]?.details).toEqual({
+      allowedBots: ['OAI-SearchBot', 'PerplexityBot', 'ClaudeBot', 'Applebot-Extended', 'Bingbot'],
+    });
+  });
 });
