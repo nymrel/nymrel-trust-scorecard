@@ -32,7 +32,7 @@ describe('GitHub workflow contract', () => {
 
   it('tests supported runtimes without fallback installs', () => {
     const ci = read('.github/workflows/ci.yml');
-    expect(ci).toContain('"22.12.0"');
+    expect(ci).toContain('"22.22.2"');
     expect(ci).toContain('"24.20.0"');
     expect(ci).toContain('"26.x"');
     expect(ci).toContain('windows-latest');
