@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
+      actions: read # Resolve this workflow run when uploading analysis results.
       contents: read
       security-events: write # Required for CodeQL to upload repository analysis.
     steps:
