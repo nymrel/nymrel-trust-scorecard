@@ -1,8 +1,8 @@
 {
   "name": "@nymrel/trust-scorecard",
-  "version": "1.0.0",
-  "private": false,
-  "description": "Viral AI Readiness & Machine Trust Web Application in Nymrel Warm Paper design",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A local-first diagnostic for scoring illustrative fixtures and manually supplied machine-readability evidence.",
   "author": "Nymrel <contact@nymrel.com>",
   "license": "MIT",
   "type": "module",
@@ -11,40 +11,71 @@
     "type": "git",
     "url": "git+https://github.com/nymrel/nymrel-trust-scorecard.git"
   },
+  "bugs": {
+    "url": "https://github.com/nymrel/nymrel-trust-scorecard/issues"
+  },
   "keywords": [
-    "machine-trust",
-    "ai-readiness",
-    "scorecard",
-    "open-ucp",
-    "agentic-commerce",
-    "json-ld",
+    "machine-readability",
+    "diagnostic",
+    "schema-org",
     "llms-txt",
     "robots-txt",
-    "x402",
-    "nymrel",
-    "jalenbuilds"
+    "agentic-commerce",
+    "nymrel"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "test": "node --test test/**/*.test.js"
+    "clean": "node ./scripts/clean.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "npm run clean && tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "biome lint . --error-on-warnings",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "security:audit": "npm audit --audit-level=high",
+    "security:signatures": "npm audit signatures",
+    "package:check": "node ./scripts/check-build.mjs",
+    "check:offline": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run package:check",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run security:audit && npm run security:signatures && npm run package:check"
   },
   "dependencies": {
-    "lucide-react": "^1.16.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "lucide-react": "1.37.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.7"
+    "@biomejs/biome": "2.5.11",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.6",
+    "@types/node": "26.4.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@vitejs/plugin-react": "6.1.1",
+    "@vitest/coverage-v8": "4.1.11",
+    "axe-core": "4.13.0",
+    "jsdom": "30.0.1",
+    "typescript": "7.0.2",
+    "vite": "8.2.2",
+    "vitest": "4.1.11"
   },
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": "^22.22.2 || ^24.15.0 || ^26.0.0",
+    "npm": ">=11.6.0 <12"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^22.22.2 || ^24.15.0 || ^26.0.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "11.19.1",
+      "onFail": "error"
+    }
+  },
+  "packageManager": "npm@11.19.1"
 }

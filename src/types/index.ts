@@ -1,7 +1,4 @@
-/**
- * Type Definitions for @nymrel/trust-scorecard
- * Dual-Audience AI Agent Readiness & Machine Trust Engine
- */
+/** Shared diagnostic contracts for the Nymrel Trust Scorecard. */
 
 export type CheckStatus = 'PASS' | 'WARN' | 'FAIL' | 'INFO';
 
@@ -14,6 +11,15 @@ export type DimensionKey =
 
 export type Grade = 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
 
+export type EvidenceKind =
+  | 'html'
+  | 'json-ld'
+  | 'robots.txt'
+  | 'llms.txt'
+  | 'llms-full.txt'
+  | 'ucp-manifest'
+  | 'headers';
+
 export interface CheckItem {
   id: string;
   name: string;
@@ -22,14 +28,16 @@ export interface CheckItem {
   score: number;
   maxScore: number;
   message: string;
-  details?: Record<string, unknown>;
-  remediation?: string;
-  codeSnippet?: {
-    language: 'json' | 'typescript' | 'html' | 'markdown' | 'bash';
-    filename: string;
-    code: string;
-    description: string;
-  };
+  details?: Record<string, unknown> | undefined;
+  remediation?: string | undefined;
+  codeSnippet?:
+    | {
+        language: 'json' | 'typescript' | 'html' | 'markdown' | 'bash';
+        filename: string;
+        code: string;
+        description: string;
+      }
+    | undefined;
 }
 
 export interface DimensionScore {
@@ -44,18 +52,49 @@ export interface DimensionScore {
   checks: CheckItem[];
 }
 
+export interface AuditProvenance {
+  kind: 'illustrative_fixture' | 'manual_evidence';
+  label: 'Illustrative fixture' | 'Manual evidence';
+  description: string;
+  liveVerified: false;
+  evidenceKinds: EvidenceKind[];
+  fixtureId?: string;
+}
+
 export interface AuditScore {
+  status: 'scored';
   totalScore: number;
-  maxScore: number;
+  maxScore: 100;
   grade: Grade;
-  machineTrustIndex: number; // 0.00 - 1.00
+  machineTrustIndex: number;
   summary: string;
   verdict: string;
-  timestamp: string;
   dimensions: Record<DimensionKey, DimensionScore>;
   checks: CheckItem[];
-  entityName?: string;
+  entityName: string;
   domain: string;
+  provenance: AuditProvenance;
+}
+
+export type AuditUnavailableReason = 'invalid_input' | 'no_evidence' | 'unknown_fixture';
+
+export interface AuditUnavailable {
+  status: 'unavailable';
+  reason: AuditUnavailableReason;
+  domain: string;
+  entityName: string;
+  provenance: {
+    kind: 'no_evidence';
+    label: 'No diagnostic score';
+    description: string;
+    liveVerified: false;
+  };
+}
+
+export type AuditResult = AuditScore | AuditUnavailable;
+
+export function isScoredAudit(result: AuditResult): result is AuditScore {
+  return result.status === 'scored';
 }
 
 export interface PresetSite {
@@ -65,6 +104,7 @@ export interface PresetSite {
   category: string;
   description: string;
   icon: string;
+  fixtureVersion: string;
   mockData: {
     rawHtml: string;
     jsonLdStrings: string[];
@@ -80,13 +120,4 @@ export interface BadgeOptions {
   theme: 'warm-paper' | 'cedar' | 'terracotta' | 'minimal-stone';
   format: 'pill' | 'shield' | 'compact';
   label?: string;
-  showGrade?: boolean;
-}
-
-export interface RawSiteInput {
-  url: string;
-  html?: string;
-  robotsTxt?: string;
-  llmsTxt?: string;
-  ucpJson?: string;
 }

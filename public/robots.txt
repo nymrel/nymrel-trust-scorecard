@@ -1,5 +1,5 @@
-# Nymrel Trust Scorecard - Robots Policy
-# Permissive AI Search discoverability, granular crawler management
+# Public crawler policy for the Trust Scorecard application.
+# Permission does not guarantee crawling, indexing, citation, or ranking.
 
 User-agent: OAI-SearchBot
 Allow: /
@@ -19,7 +19,6 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-# General Crawlers
 User-agent: *
 Allow: /
 

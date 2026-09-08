@@ -1,26 +1,15 @@
 # Nymrel Trust Scorecard
 
-> Nymrel Trust Scorecard is a deterministic AI Agent Readiness and Machine Trust audit engine. It evaluates any web domain across 5 core dimensions: AI Discovery & Orientation, Entity Graph & Provenance, Universal Commerce Protocol (UCP) Offers, Autonomous Machine Payments (x402 / AP2 / ACP), and AI Crawler discoverability.
+> A local-first browser diagnostic for versioned synthetic fixtures and bounded evidence supplied by the user.
 
-## Core Capabilities & Endpoints
+## Application
+- Diagnostic: https://score.nymrel.com/
+- Source: https://github.com/nymrel/nymrel-trust-scorecard
+- Nymrel: https://nymrel.com/
 
-- Web App: https://score.nymrel.com
-- GitHub Repo: https://github.com/nymrel/nymrel-trust-scorecard
-- Machine Trust Standard: https://github.com/nymrel/nymrel-machine-trust
-- Universal Commerce Protocol: https://github.com/nymrel/open-ucp
-- Agentic Scanner CLI: https://github.com/nymrel/agentic-ucp-scanner
-
-## Machine Trust Dimensions
-
-1. **Discovery & Orientation (20 pts)**: Presence of standard `/llms.txt`, `/llms-full.txt`, sitemaps, and machine index headers.
-2. **Entity Graph & Provenance (20 pts)**: Rich Schema.org JSON-LD with verified `parentOrganization` (e.g. Nymrel -> JalenBuilds LLC), legal entity registration, and contact points.
-3. **Intent & Commerce Offers (20 pts)**: Structured Schema.org `Product`, `Offer`, ISO 4217 currencies, real-time availability, and merchant return policies.
-4. **Machine Payments & Checkout (20 pts)**: Native HTTP 402 / x402 headers, AP2/ACP negotiation, headless Stripe agent links, and crypto/stablecoin rails.
-5. **AI Crawler Access (20 pts)**: Explicit permissions for `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot`, and avoiding blanket crawl blocks.
-
-## Entity Hierarchy & Governance
-
-- Primary Brand: Nymrel (https://nymrel.com)
-- Parent Legal Entity: JalenBuilds LLC (https://jalenbuilds.com)
-- Contact: contact@jalenbuilds.com
-- License: MIT License (Open Source)
+## Boundaries
+- The application does not fetch the labeled website.
+- A domain alone receives no score.
+- Synthetic examples use reserved .example domains.
+- Results do not certify readiness, compliance, live behavior, discoverability, ranking, or revenue.
+- Manual evidence is evaluated locally in the browser.

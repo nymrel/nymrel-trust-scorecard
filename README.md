@@ -1,132 +1,79 @@
 # Nymrel Trust Scorecard
 
-[![Machine Trust](https://img.shields.io/badge/Machine%20Trust-100%2F100%20A%2B-237346?style=flat-square&logo=shield)](https://score.nymrel.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-A8541F.svg?style=flat-square)](LICENSE)
-[![React 18](https://img.shields.io/badge/React-18.3.1-2A332E?style=flat-square&logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=flat-square&logo=vite)](https://vitejs.dev)
+A local-first browser diagnostic for machine-readable website evidence. It scores versioned synthetic fixtures or bounded evidence that a user supplies directly; it does not fetch a domain, observe production behavior, certify readiness, or predict search inclusion.
 
-> **Deterministic AI Readiness & Machine Trust Web Application** built in the **Nymrel Warm Paper design aesthetic** (`#FAF8F2`, `#F4F0E6`, `#2A332E`, `#A8541F`). Audit any website for AI Agent Readiness, Schema.org Machine Trust, Universal Commerce Protocol (UCP), and AI Search Bot discoverability.
+## Trust boundary
 
----
+- A typed domain is a label only and receives no score.
+- Synthetic fixtures use reserved `.example` domains and carry a versioned provenance label.
+- Manual evidence is validated at a bounded runtime boundary and remains in the browser.
+- Scores describe this repository's deterministic diagnostic model, not compliance or production truth.
+- Remediation output is an operator-fill review candidate, not an automatic fix.
+- Badge and sharing tools create explicitly illustrative local artifacts.
 
-## 🌟 Key Features
+## Stack
 
-- 🎯 **5-Dimension Machine Trust Benchmark (0–100 Gauge)**:
-  1. **Discovery & Orientation (20 pts)**: `/llms.txt` standard, sitemaps, machine index headers.
-  2. **Entity Graph & Provenance (20 pts)**: Schema.org JSON-LD, `parentOrganization` hierarchy (e.g. `Nymrel -> JalenBuilds LLC`), legal entity registration.
-  3. **UCP Commerce & Offers (20 pts)**: Structured `Product`, `Offer`, ISO 4217 currencies, real-time availability, and merchant return policies.
-  4. **Autonomous Machine Payments (20 pts)**: Native HTTP 402 / `x402` micropayments, AP2/ACP negotiation, headless Stripe agent links, and stablecoin rails.
-  5. **AI Search Bot Access (20 pts)**: Explicit permissions for `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot`, and granular crawler policies.
-- ⚡ **Interactive SVG Radar Visualizer**: High-precision 5-axis polygon radar chart with live percentage nodes and radial score gauge.
-- 🛠️ **1-Click Code Remediation**: Immediate, copyable TypeScript / JSON / Markdown fixes using [`@nymrel/machine-trust`](https://github.com/nymrel/nymrel-machine-trust) and [`@nymrel/open-ucp`](https://github.com/nymrel/open-ucp).
-- 🏷️ **Live SVG Machine Trust Badge Generator**: Create embeddable markdown/HTML badges in Warm Paper, Cedar Forest, Terracotta, and Minimal Stone styles for GitHub READMEs.
-- 🚀 **Viral Growth Systems**:
-  - 1-Click X (Twitter) share intent: *"My site scored 96/100 on @nymrel Machine Trust Scorecard! Check your AI agent readiness..."*
-  - Shareable URL hashes & query strings (`?url=stripe.com`) for instant reproducibility.
-  - Formatted multi-channel summaries for LinkedIn, Discord, and Slack.
-- 🛡️ **Dual-Audience Machine Trust**: Breathtaking warm paper typography for humans with machine-verifiable JSON-LD entity graph for autonomous AI agents.
+- React 19.2
+- Vite 8 with Rolldown
+- TypeScript 7 in strict mode
+- Vitest 4 with V8 coverage
+- Biome 2 for formatting and compiler-independent linting
+- Node 22, 24, and 26; npm 11 with an exact lockfile
 
----
+## Develop
 
-## 🎨 Design Tokens (Warm Paper Aesthetic)
+Prerequisites: a supported Node release and npm 11.
 
-Nymrel avoids cold tech dark modes in favor of warm, tactile, high-readability palettes:
-
-| Token | Hex | Role |
-| --- | --- | --- |
-| **Warm Cream** | `#FAF8F2` | Base background & canvas |
-| **Soft Linen** | `#F4F0E6` | Secondary panels & headers |
-| **Cedar Green** | `#2A332E` | Primary typography & dark accents |
-| **Terracotta** | `#A8541F` | Action buttons, highlights & accents |
-| **Stone Border** | `#E2DDD2` | Subtle dividers & container boundaries |
-
----
-
-## 📦 Quick Start
-
-### Installation
-
-```bash
-git clone https://github.com/nymrel/nymrel-trust-scorecard.git
-cd nymrel-trust-scorecard
-npm install
-```
-
-### Development Server
-
-```bash
+```powershell
+npm ci --ignore-scripts
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+The development server binds only to `127.0.0.1`.
 
-### Production Build
+## Verify
 
-```bash
+```powershell
+npm run check
+```
+
+The gate checks formatting, lint, strict types, behavioral coverage, production build, dependency vulnerabilities, package signatures, required artifacts, source-map absence, JavaScript budget, and forbidden public claims.
+
+Individual commands:
+
+```powershell
+npm run typecheck
+npm run test:coverage
 npm run build
-npm run preview
+npm run package:check
+npm run security:audit
+npm run security:signatures
 ```
 
-### Unit Tests
+## Architecture
 
-```bash
-npm test
+```text
+src/
+  components/       Accessible browser surfaces and explicit result states
+  engine/           Input validation, deterministic evaluators, scoring, artifacts
+  lib/              Browser capability adapters and minimized diagnostics
+  theme/            Nymrel visual tokens and responsive component styling
+  types/            Discriminated diagnostic and provenance contracts
+test/               Behavioral, UI, accessibility, and workflow-contract tests
+scripts/            Clean-build and production-artifact checks
+.github/workflows/  Pinned CI, CodeQL, and exact-commit evidence packaging
 ```
 
----
+## Deployment posture
 
-## 🏗️ Project Architecture
+The intended canonical origin is `https://score.nymrel.com/`. A repository build, workflow run, route response, or sitemap does not by itself prove that a deployment is current. Promotion requires an exact-commit build receipt plus independent hosted verification.
 
-```
-nymrel-trust-scorecard/
-├── index.html                   # Warm paper metadata, OG cards, Schema.org LD+JSON
-├── package.json                 # Project scripts, dependencies, engines
-├── tsconfig.json                # TypeScript compiler configuration
-├── vite.config.ts               # Vite build & bundler settings
-├── public/
-│   ├── favicon.svg              # Nymrel shield brand mark
-│   ├── robots.txt               # AI search permissive crawler rules
-│   ├── llms.txt                 # AI agent orientation specification
-│   └── sitemap.xml              # Search & agent sitemap
-├── src/
-│   ├── main.tsx                 # React DOM mount point
-│   ├── App.tsx                  # App orchestrator & URL hash state
-│   ├── types/                   # TypeScript interfaces (Score, Checks, Presets)
-│   ├── theme/
-│   │   ├── tokens.ts            # Warm paper design constants & grade scales
-│   │   └── theme.css            # Base typography, utility classes, animations
-│   ├── engine/
-│   │   ├── auditEngine.ts       # Master evaluator runner
-│   │   ├── scoring.ts           # Deterministic 0-100 scoring & grades
-│   │   ├── badgeGenerator.ts    # Dynamic SVG badge engine (Pill / Shield / Compact)
-│   │   ├── remediationEngine.ts # 1-click code patches for @nymrel packages
-│   │   ├── fixtures.ts          # Realistic presets (Nymrel, Stripe, Shopify, OpenAI)
-│   │   └── evaluators/          # Dimension-specific evaluation modules
-│   └── components/
-│       ├── Header.tsx           # Brand mark, live crawler counter, GitHub link
-│       ├── AuditHero.tsx        # Search bar, 1-click presets & scanning feedback
-│       ├── ScorecardRadar.tsx   # 5-axis SVG radar visualizer & dimension breakdown
-│       ├── RemediationAccordion.tsx # 1-click copyable code patches
-│       ├── BadgeEmbedDrawer.tsx # Live SVG badge builder with Markdown/HTML code
-│       ├── ShareOnXButton.tsx   # Viral tweet & social copy bar
-│       └── Footer.tsx           # Nymrel -> JalenBuilds LLC entity provenance
-└── test/                        # Node.js test runner unit test suite
-```
+Static-host security headers are provided in `public/_headers`. Confirm the selected provider supports that contract before deployment.
 
----
+## Security and privacy
 
-## 🧩 Nymrel Ecosystem Integration
+The browser app has no application network client. Manual evidence is processed locally and bounded by size, depth, count, URL, and header validation. See [SECURITY.md](SECURITY.md) for private reporting.
 
-- **[`@nymrel/machine-trust`](https://github.com/nymrel/nymrel-machine-trust)**: Automated Schema.org entity graph generator, `/llms.txt` builder, and robots.txt manager.
-- **[`@nymrel/open-ucp`](https://github.com/nymrel/open-ucp)**: Zero-dependency Universal Commerce Protocol & AI agent purchasing handler with HTTP 402 / `x402` support.
-- **[`@nymrel/agentic-ucp-scanner`](https://github.com/nymrel/agentic-ucp-scanner)**: CLI scanner for continuous integration and terminal auditing.
+## License
 
----
-
-## 🏛️ Entity Provenance & Legal Trust
-
-- **Operating Umbrella**: Nymrel ([https://nymrel.com](https://nymrel.com))
-- **Parent Legal Entity**: JalenBuilds LLC ([https://jalenbuilds.com](https://jalenbuilds.com))
-- **Contact**: `contact@jalenbuilds.com` / `contact@nymrel.com`
-- **License**: MIT License © 2026 Nymrel / JalenBuilds LLC
+MIT. See [LICENSE](LICENSE).

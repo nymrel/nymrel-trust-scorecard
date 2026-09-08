@@ -1,7 +1,19 @@
-import { AuditScore, CheckItem, DimensionKey, DimensionScore, Grade } from '../types';
+import type {
+  AuditProvenance,
+  AuditScore,
+  CheckItem,
+  DimensionKey,
+  DimensionScore,
+  Grade,
+} from '../types';
 import { dimensions as dimensionConfigs } from '../theme/tokens';
 
-export function calculateAuditScore(checks: CheckItem[], domain: string, entityName?: string): AuditScore {
+export function calculateAuditScore(
+  checks: CheckItem[],
+  domain: string,
+  entityName: string | undefined,
+  provenance: AuditProvenance,
+): AuditScore {
   const dimensionKeys: DimensionKey[] = [
     'discovery',
     'entityGraph',
@@ -57,17 +69,18 @@ export function calculateAuditScore(checks: CheckItem[], domain: string, entityN
   const { summary, verdict } = generateVerdict(grade, domain);
 
   return {
+    status: 'scored',
     totalScore,
     maxScore: 100,
     grade,
     machineTrustIndex,
     summary,
     verdict,
-    timestamp: new Date().toISOString(),
     dimensions: dimensionsMap,
     checks,
     entityName: entityName || domain,
     domain,
+    provenance,
   };
 }
 
@@ -97,30 +110,35 @@ export function computeGrade(score: number): Grade {
 function generateVerdict(grade: Grade, domain: string): { summary: string; verdict: string } {
   if (grade === 'A+' || grade === 'A') {
     return {
-      summary: `${domain} demonstrates exceptional dual-audience readiness with verifiable machine trust, active agent endpoints, and unrestricted search crawler discoverability.`,
-      verdict: 'Full Autonomous Agent Ready — AI purchasing agents can independently discover, evaluate, and transact without human intervention.',
+      summary: `The supplied snapshot for ${domain} satisfies most checks in this diagnostic model.`,
+      verdict:
+        'High modeled coverage — independently verify every live endpoint, policy, price, and transaction path before relying on this result.',
     };
   }
   if (grade === 'B') {
     return {
-      summary: `${domain} has strong machine trust foundations and crawler access. Adding dedicated UCP checkout endpoints or /llms-full.txt will elevate it to top-tier agent readiness.`,
-      verdict: 'Agent-Friendly Platform — Strong structured data and crawler access; minor improvements needed in autonomous checkout or UCP endpoints.',
+      summary: `The supplied snapshot for ${domain} satisfies many modeled discovery and machine-readability checks.`,
+      verdict:
+        'Strong diagnostic coverage — review the missing or partial evidence before making a readiness claim.',
     };
   }
   if (grade === 'C') {
     return {
-      summary: `${domain} has basic metadata or schema present, but lacks formal AI agent orientation (/llms.txt), verified parent entity provenance, or machine payment rails.`,
-      verdict: 'Partial AI Readiness — Missing key agentic commerce protocols and machine trust provenance.',
+      summary: `The supplied snapshot for ${domain} covers part of the diagnostic model and leaves material evidence gaps.`,
+      verdict:
+        'Partial diagnostic coverage — validate the listed gaps and live behavior before treating the surface as agent-ready.',
     };
   }
   if (grade === 'D') {
     return {
-      summary: `${domain} is built strictly for legacy human browser navigation. AI agents encounter sparse schema, unverified pricing, and no programmatic commerce interfaces.`,
-      verdict: 'Legacy Web Structure — Opaque to autonomous agents with minimal machine-readable data.',
+      summary: `The supplied snapshot for ${domain} contains limited machine-readable evidence in this model.`,
+      verdict:
+        'Low diagnostic coverage — the result describes supplied evidence only and does not establish the live site state.',
     };
   }
   return {
-    summary: `${domain} blocks AI search crawlers or lacks any machine-readable entity or offer schema. Autonomous agents cannot discover or verify its services.`,
-    verdict: 'Agent-Hostile / Opaque — AI agents are actively blocked or unable to parse services.',
+    summary: `The supplied snapshot for ${domain} satisfies few checks in this diagnostic model.`,
+    verdict:
+      'Insufficient diagnostic evidence — do not infer live blocking, discoverability, or transaction behavior from this score alone.',
   };
 }

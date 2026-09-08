@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        node:
+          - "22.22.2"
+          - "24.20.0"
+          - "26.x"
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node ${{ matrix.node }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v4
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false # Pin npm before repository devEngines run.
+
+      - name: Pin npm
+        working-directory: ${{ runner.temp }}
+        shell: pwsh
+        # zizmor: ignore[adhoc-packages] npm itself is exact-pinned by packageManager.
+        run: |
+          npm install --prefix "$env:RUNNER_TEMP/trust-npm" npm@11.19.1 --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "$env:RUNNER_TEMP/trust-npm/node_modules/.bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run offline acceptance gate
+        run: npm run check:offline
+
+      - name: Upload reference evidence
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '24.20.0'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
+        with:
+          name: trust-scorecard-evidence-${{ github.sha }}
+          path: |
+            coverage/
+            dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  dependency-integrity:
+    name: Dependency integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v4
+        with:
+          node-version: "24.20.0"
+          package-manager-cache: false # Pin npm before repository devEngines run.
+
+      - name: Pin npm
+        working-directory: ${{ runner.temp }}
+        shell: pwsh
+        # zizmor: ignore[adhoc-packages] npm itself is exact-pinned by packageManager.
+        run: |
+          npm install --prefix "$env:RUNNER_TEMP/trust-npm" npm@11.19.1 --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "$env:RUNNER_TEMP/trust-npm/node_modules/.bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Audit high-severity vulnerabilities
+        run: npm run security:audit
+
+      - name: Verify registry signatures
+        run: npm run security:signatures
