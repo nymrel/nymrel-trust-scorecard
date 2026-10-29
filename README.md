@@ -13,7 +13,7 @@ A local-first browser diagnostic for machine-readable website evidence. It score
 
 ## Stack
 
-- React 19.2
+- React 19.3
 - Vite 8 with Rolldown
 - TypeScript 7 in strict mode
 - Vitest 4 with V8 coverage
