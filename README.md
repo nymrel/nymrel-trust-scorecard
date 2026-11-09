@@ -13,6 +13,11 @@ A local-first browser diagnostic for machine-readable website evidence. It score
 
 ## Stack
 
+See [audience workflows](docs/AUDIENCE_FLOWS.md) for a no-code report walkthrough,
+manual-evidence steps, and the local TypeScript input/result/recovery contract
+for developers and agents. The page keeps manual drafts while you try examples;
+drafts are not persisted after reload or included in shared links.
+
 - React 19.3
 - Vite 8 with Rolldown
 - TypeScript 7 in strict mode

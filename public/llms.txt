@@ -3,6 +3,7 @@
 > A local-first browser diagnostic for versioned synthetic fixtures and bounded evidence supplied by the user.
 
 ## Application
+- Audience workflows and local engine contract: https://github.com/nymrel/nymrel-trust-scorecard/blob/main/docs/AUDIENCE_FLOWS.md
 - Diagnostic: https://score.nymrel.com/
 - Source: https://github.com/nymrel/nymrel-trust-scorecard
 - Nymrel: https://nymrel.com/
@@ -13,3 +14,4 @@
 - Synthetic examples use reserved .example domains.
 - Results do not certify readiness, compliance, live behavior, discoverability, ranking, or revenue.
 - Manual evidence is evaluated locally in the browser.
+- Source integrations branch on status: scored or unavailable. No hosted API or MCP endpoint is supplied.
