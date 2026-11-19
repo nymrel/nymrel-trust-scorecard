@@ -118,7 +118,16 @@ export function ScorecardRadar({ result, onSelectDimension }: ScorecardRadarProp
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '6px',
+              overflowWrap: 'anywhere',
+            }}
+          >
             <h2
               style={{
                 fontFamily: 'var(--font-serif)',
@@ -230,7 +239,7 @@ export function ScorecardRadar({ result, onSelectDimension }: ScorecardRadarProp
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
           gap: '32px',
           alignItems: 'center',
         }}
@@ -349,11 +358,10 @@ export function ScorecardRadar({ result, onSelectDimension }: ScorecardRadarProp
               const x = center + labelRadius * Math.cos(angle);
               const y = center + labelRadius * Math.sin(angle);
               const isHovered = activeHoverDim === key;
-              const dimConfig = dimensionConfigs[key];
 
               let anchor: 'start' | 'end' | 'middle' = 'middle';
-              if (Math.cos(angle) > 0.3) anchor = 'start';
-              else if (Math.cos(angle) < -0.3) anchor = 'end';
+              if (Math.cos(angle) > 0.3) anchor = 'end';
+              else if (Math.cos(angle) < -0.3) anchor = 'start';
 
               return (
                 <text
@@ -367,7 +375,7 @@ export function ScorecardRadar({ result, onSelectDimension }: ScorecardRadarProp
                   fontWeight={isHovered ? '700' : '600'}
                   style={{ transition: 'all 0.15s ease' }}
                 >
-                  {dimConfig.shortName} ({score.dimensions[key]?.percentage || 0}%)
+                  {i + 1}: {score.dimensions[key]?.percentage || 0}%
                 </text>
               );
             })}
@@ -399,7 +407,7 @@ export function ScorecardRadar({ result, onSelectDimension }: ScorecardRadarProp
 
         {/* 5-Dimension Progress List & Quick Diagnostics */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {dimensionKeys.map((key) => {
+          {dimensionKeys.map((key, index) => {
             const dim = score.dimensions[key];
             const config = dimensionConfigs[key];
             const isHovered = activeHoverDim === key;
@@ -442,7 +450,7 @@ export function ScorecardRadar({ result, onSelectDimension }: ScorecardRadarProp
                     <span
                       style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-cedar)' }}
                     >
-                      {dim.name}
+                      {index + 1}. {dim.name}
                     </span>
                   </div>
                   <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-cedar)' }}>
