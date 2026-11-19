@@ -22,10 +22,16 @@ export function AuditHero({ activeFixtureId, currentUrl, isPending, onAudit }: A
   const [jsonLd, setJsonLd] = useState('');
   const evidencePanelId = useId();
 
-  useEffect(() => setInputUrl(currentUrl), [currentUrl]);
+  useEffect(() => {
+    if (!activeFixtureId) setInputUrl(currentUrl);
+  }, [activeFixtureId, currentUrl]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    submitEvidence();
+  };
+
+  const submitEvidence = () => {
     const url = inputUrl.trim();
     if (!url || isPending) return;
     const trimmedJsonLd = jsonLd.trim();
@@ -43,9 +49,33 @@ export function AuditHero({ activeFixtureId, currentUrl, isPending, onAudit }: A
         Inspect the evidence. <span className="hero-accent">Keep the claim honest.</span>
       </h1>
       <p className="hero-copy">
-        Score a versioned illustrative fixture or bounded JSON-LD you supply. This browser app does
-        not fetch a website, verify live behavior, certify readiness, or predict discoverability.
+        See which website details automated systems can read. Start with a fictional example, or
+        check JSON-LD supplied from your own site. Everything is scored in this browser; no website
+        is fetched.
       </p>
+
+      <fieldset className="fixture-picker">
+        <legend>Explore an example — no code needed</legend>
+        <p className="form-help">
+          These fictional reports explain the checks. They are not live website audits.
+        </p>
+        <div className="fixture-list">
+          {PRESET_SITES.map((fixture) => (
+            <button
+              key={fixture.id}
+              type="button"
+              className="fixture-button"
+              aria-pressed={activeFixtureId === fixture.id}
+              disabled={isPending}
+              onClick={() => {
+                onAudit({ url: fixture.url, presetId: fixture.id });
+              }}
+            >
+              {fixture.name}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       <form onSubmit={handleSubmit} className="audit-form" aria-label="Diagnostic evidence input">
         <label htmlFor="diagnostic-domain" className="sr-only">
@@ -77,28 +107,6 @@ export function AuditHero({ activeFixtureId, currentUrl, isPending, onAudit }: A
         A domain by itself receives no score. It is a label only; no network request is made.
       </p>
 
-      <fieldset className="fixture-picker">
-        <legend>Illustrative fixtures</legend>
-        <div className="fixture-list">
-          {PRESET_SITES.map((fixture) => (
-            <button
-              key={fixture.id}
-              type="button"
-              className="fixture-button"
-              aria-pressed={activeFixtureId === fixture.id}
-              disabled={isPending}
-              onClick={() => {
-                setInputUrl(fixture.url);
-                setJsonLd('');
-                onAudit({ url: fixture.url, presetId: fixture.id });
-              }}
-            >
-              {fixture.name}
-            </button>
-          ))}
-        </div>
-      </fieldset>
-
       <button
         type="button"
         className="evidence-toggle"
@@ -126,8 +134,29 @@ export function AuditHero({ activeFixtureId, currentUrl, isPending, onAudit }: A
             Evidence remains in this page and is never sent by this application. Invalid JSON is
             scored as invalid evidence; it is not silently repaired.
           </p>
+          <button
+            type="button"
+            className="btn-primary"
+            disabled={isPending || !inputUrl.trim() || !jsonLd.trim()}
+            onClick={submitEvidence}
+          >
+            Score this evidence
+            <ArrowRight aria-hidden="true" size={16} />
+          </button>
         </div>
       )}
+
+      <details className="integration-help">
+        <summary>Developers and agents: use the scoring engine</summary>
+        <p>
+          The source exposes a local TypeScript function with structured scored or unavailable
+          results. There is no hosted API or MCP endpoint in this app.{' '}
+          <a href="https://github.com/nymrel/nymrel-trust-scorecard/blob/main/docs/AUDIENCE_FLOWS.md">
+            Read the input, result, and recovery contract
+          </a>
+          .
+        </p>
+      </details>
     </section>
   );
 }

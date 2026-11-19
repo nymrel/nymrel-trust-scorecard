@@ -42,24 +42,24 @@
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run security:audit && npm run security:signatures && npm run package:check"
   },
   "dependencies": {
-    "lucide-react": "1.37.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "lucide-react": "1.66.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.11",
+    "@biomejs/biome": "2.5.15",
     "@testing-library/react": "16.3.3",
-    "@testing-library/user-event": "14.6.6",
-    "@types/node": "26.4.0",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.5",
-    "@vitejs/plugin-react": "6.1.1",
-    "@vitest/coverage-v8": "4.1.11",
-    "axe-core": "4.13.0",
-    "jsdom": "30.0.1",
+    "@testing-library/user-event": "14.6.7",
+    "@types/node": "26.6.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "@vitest/coverage-v8": "5.0.3",
+    "axe-core": "4.14.0",
+    "jsdom": "30.1.2",
     "typescript": "7.0.2",
-    "vite": "8.2.2",
-    "vitest": "4.1.11"
+    "vite": "8.3.3",
+    "vitest": "5.0.3"
   },
   "engines": {
     "node": "^22.22.2 || ^24.15.0 || ^26.0.0",

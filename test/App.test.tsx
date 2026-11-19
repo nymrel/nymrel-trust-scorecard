@@ -62,4 +62,28 @@ describe('application trust states', () => {
     expect((await screen.findAllByText(/Manual evidence/)).length).toBeGreaterThan(0);
     expect(screen.getByText(/no network request or independent verification/i)).toBeTruthy();
   });
+
+  it('preserves a manual draft while exploring examples and submits beside the evidence', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const input = screen.getByLabelText('Domain used to label the evidence');
+    await user.clear(input);
+    await user.type(input, 'draft.example');
+    await user.click(screen.getByRole('button', { name: /supply manual json-ld evidence/i }));
+    const draft = '{"@context":"https://schema.org","@type":"Organization","name":"Draft"}';
+    fireEvent.change(screen.getByLabelText('Schema.org JSON-LD'), { target: { value: draft } });
+
+    const anotherExample = screen
+      .getAllByRole('button', { pressed: false })
+      .find((button) => button.classList.contains('fixture-button'));
+    if (!anotherExample) throw new Error('A second illustrative fixture is required');
+    await user.click(anotherExample);
+    expect(
+      (screen.getByLabelText('Domain used to label the evidence') as HTMLInputElement).value,
+    ).toBe('draft.example');
+    expect((screen.getByLabelText('Schema.org JSON-LD') as HTMLTextAreaElement).value).toBe(draft);
+    await user.click(screen.getByRole('button', { name: /score this evidence/i }));
+    expect((await screen.findAllByText(/Manual evidence/)).length).toBeGreaterThan(0);
+    expect(window.location.search).toBe('?domain=draft.example');
+  });
 });
