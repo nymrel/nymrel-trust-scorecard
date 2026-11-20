@@ -35,11 +35,13 @@ import { runAudit } from '../src/engine/auditEngine';
 
 const result = runAudit({
   url: 'https://example.com',
-  jsonLdStrings: [JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Example',
-  })],
+  jsonLdStrings: [
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Example',
+    }),
+  ],
 });
 
 if (result.status === 'unavailable') {
