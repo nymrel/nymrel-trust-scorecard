@@ -42,7 +42,7 @@ The development server binds only to `127.0.0.1`.
 npm run check
 ```
 
-The gate checks formatting, lint, strict types, behavioral coverage, production build, dependency vulnerabilities, package signatures, required artifacts, source-map absence, JavaScript budget, and forbidden public claims.
+The gate checks formatting, lint, strict types, behavioral coverage, static-host routing and privacy boundaries, production build, dependency vulnerabilities, package signatures, required artifacts, source-map absence, JavaScript budget, and forbidden public claims.
 
 Individual commands:
 
@@ -74,6 +74,8 @@ scripts/            Clean-build and production-artifact checks
 The intended canonical origin is `https://score.nymrel.com/`. A repository build, workflow run, route response, or sitemap does not by itself prove that a deployment is current. Promotion requires an exact-commit build receipt plus independent hosted verification.
 
 Static-host security headers are provided in `public/_headers`. Confirm the selected provider supports that contract before deployment.
+
+The standalone Cloudflare deployment uses the repository's static build and preserves those headers, including `connect-src 'none'`. See [standalone hosting](docs/STANDALONE_HOSTING.md) for the reproducible package, source receipt, and verification steps.
 
 ## Security and privacy
 

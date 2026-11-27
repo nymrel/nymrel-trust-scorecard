@@ -8,7 +8,14 @@
     }
   },
   "files": {
-    "includes": ["**", "!!coverage", "!!dist", "!!node_modules", "!!package-lock.json"],
+    "includes": [
+      "**",
+      "!!coverage",
+      "!!dist",
+      "!!node_modules",
+      "!!package-lock.json",
+      "!!.cloudflare-package"
+    ],
     "maxSize": 1048576
   },
   "formatter": {
