@@ -38,8 +38,10 @@
     "security:audit": "npm audit --audit-level=high",
     "security:signatures": "npm audit signatures",
     "package:check": "node ./scripts/check-build.mjs",
-    "check:offline": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run package:check",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run security:audit && npm run security:signatures && npm run package:check"
+    "test:hosting": "node --test cloudflare/handler.test.mjs",
+    "package:cloudflare": "npm run build && npm run package:check && node ./scripts/package-cloudflare.mjs",
+    "check:offline": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run test:hosting && npm run build && npm run package:check",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run test:hosting && npm run build && npm run security:audit && npm run security:signatures && npm run package:check"
   },
   "dependencies": {
     "lucide-react": "1.66.0",
